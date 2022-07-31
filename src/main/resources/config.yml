@@ -1,0 +1,35 @@
+# Speed of the camera (degrees/tick)
+cameraSpeed: 1
+# Delay in seconds before saving the room
+saveDelay: 10
+
+# Allow the player to sneak to leave the camera
+allowSneakToLeave: true
+# Allow the player to click to change the camera
+allowClickToChange: true
+# Allow the player to change the slot of the camera (left/right)
+allowSlotToChange: true
+# Allow the player to enter the camera via the screen
+allowEnterByScreen: true
+# Allow the player to enter the camera via the camera
+allowEnterByCamera: false
+
+camera:
+  materials:
+    support: END_ROD
+    cameraItem: END_ROD
+  
+  # The gamemode to use when the player is in the camera
+  # Survival: The player can break blocks. (not recommanded)
+  # Adventure: The player can take damage and his items are visible. (recommanded)
+  # Creative: The player have access to the creative inventory. (not recommanded)
+  # Spectator: The player will see the invisible armor stand and can't use the allowSlotToChange. (recommanded)
+  gamemode: SPECTATOR
+
+
+screen:
+  materials:
+    downSupport: PLAYER_HEAD
+    upSupport: PLAYER_WALL_HEAD
+    wallSupport: PLAYER_HEAD
+    headTextureBase64: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzRhZDg4OTNiNDdkMDU5YzJlNGZmYmIwYTk3YjU1YTVjOWEwNTQxN2M5MDNjY2U1MTEyMjgxNjE0NmQ2MDc2MCJ9fX0=

@@ -1,0 +1,14 @@
+sample:
+  camhead add room ROOM_1 0 64 0:
+    contains: "ROOM_1"
+  camhead list room:
+    contains: "ROOM_1"
+  camhead info room ROOM_1:
+    contains: "ROOM_1"
+  camhead add camera ROOM_1 CAMERA_1 0 64 0:
+    contains: "CAMERA_1"
+  camhead list camera ROOM_1:
+    contains: "CAMERA_1"
+  camhead info camera ROOM_1 CAMERA_1:
+    contains: "CAMERA_1"
+

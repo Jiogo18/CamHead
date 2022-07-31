@@ -1,0 +1,21 @@
+Language: Java
+BasedOnStyle: Chromium   
+
+IndentWidth: 8
+UseTab: Always
+AccessModifierOffset: 2
+
+ColumnLimit: 0
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterFunction: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+
+SortIncludes: true
+AllowShortFunctionsOnASingleLine: Empty
+SpaceAfterCStyleCast: true
