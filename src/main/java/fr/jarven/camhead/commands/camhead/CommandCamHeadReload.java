@@ -4,6 +4,7 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Room;
+import fr.jarven.camhead.utils.Messages;
 
 public class CommandCamHeadReload extends SubCommandBuider {
 	@Override
@@ -13,12 +14,12 @@ public class CommandCamHeadReload extends SubCommandBuider {
 				Room room = getRoom(args, 0);
 				CamHead.manager.reload(room);
 				room = CamHead.manager.getRoom(room.getName()).orElseThrow();
-				sender.sendMessage("Room " + room.getName() + " reloaded.");
+				Messages.Resources.RELOAD_ROOM_SUCCESS.params(room).send(sender);
 			}))
 			.executes((sender, args) -> {
-				sender.sendMessage("Reloading...");
+				Messages.Resources.RELOAD_RELOADING.send(sender);
 				CamHead.getInstance().loadConfig();
-				sender.sendMessage("Reloaded with " + CamHead.manager.getRooms().size() + " rooms.");
+				Messages.Resources.RELOAD_SUCCESS.replace("%roomCount%", String.valueOf(CamHead.manager.getRooms().size())).send(sender);
 			});
 	}
 }

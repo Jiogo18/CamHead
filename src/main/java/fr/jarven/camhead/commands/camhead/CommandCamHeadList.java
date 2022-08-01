@@ -5,13 +5,14 @@ import org.bukkit.Location;
 import java.util.Set;
 
 import dev.jorel.commandapi.arguments.LiteralArgument;
-import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.utils.Messages;
+import fr.jarven.camhead.utils.Messages.MessageBuilder;
 
 public class CommandCamHeadList extends SubCommandBuider {
 	@Override
@@ -22,68 +23,67 @@ public class CommandCamHeadList extends SubCommandBuider {
 			.then(literal("room").executesNative(this::listRooms));
 	}
 
-	private int listCameras(NativeProxyCommandSender proxy, Object[] args) throws WrapperCommandSyntaxException {
+	private int listCameras(NativeProxyCommandSender proxy, Object[] args) {
 		Room room = getRoom(args, 0);
-		if (room == null) {
-			sendFailureMessage(proxy, "Room not found");
-			return 0;
-		} else {
-			StringBuilder sb = new StringBuilder();
-			Set<Camera> cameras = room.getCameras();
-			sb.append("Cameras in room ").append(room.getName()).append(": ").append(cameras.size());
-			for (Camera camera : cameras) {
-				sb.append("\n- ").append(camera.getName()).append(getDistanceWith(proxy.getLocation(), camera.getLocation()));
-			}
-			sendMessageToBoth(proxy, sb.toString());
-			return cameras.size();
+		Set<Camera> cameras = room.getCameras();
+		MessageBuilder builder = Messages.Resources.LIST_CAMERAS_HEADER.params(room).replace("%cameraCount%", String.valueOf(cameras.size()));
+		MessageBuilder lastItem = builder;
+		for (Camera camera : cameras) {
+			MessageBuilder nextItem = Messages.Resources.LIST_CAMERAS_LINE
+							  .params(camera)
+							  .replace("%distance%", getDistanceWith(proxy, camera.getLocation()));
+			lastItem.replace("%nextCamera%", nextItem);
+			lastItem = nextItem;
 		}
+		lastItem.replace("\n%nextCamera%", "");
+		builder.sendToBoth(proxy);
+		return cameras.size();
 	}
 
-	private int listScreens(NativeProxyCommandSender proxy, Object[] args) throws WrapperCommandSyntaxException {
+	private int listScreens(NativeProxyCommandSender proxy, Object[] args) {
 		Room room = getRoom(args, 0);
-		if (room == null) {
-			sendFailureMessage(proxy, "Room not found");
-			return 0;
-		} else {
-			StringBuilder sb = new StringBuilder();
-			Set<Screen> screens = room.getScreens();
-			sb.append("Screens in room ").append(room.getName()).append(": ").append(screens.size());
-			for (Screen screen : screens) {
-				sb.append("\n- ").append(screen.getName()).append(getDistanceWith(proxy.getLocation(), screen.getLocation()));
-			}
-			sendMessageToBoth(proxy, sb.toString());
-			return screens.size();
+		Set<Screen> screens = room.getScreens();
+		MessageBuilder builder = Messages.Resources.LIST_SCREENS_HEADER.params(room).replace("%screenCount%", String.valueOf(screens.size()));
+		MessageBuilder lastItem = builder;
+		for (Screen screen : screens) {
+			MessageBuilder nextItem = Messages.Resources.LIST_SCREENS_LINE
+							  .params(screen)
+							  .replace("%distance%", getDistanceWith(proxy, screen.getLocation()));
+			lastItem.replace("%nextScreen%", nextItem);
+			lastItem = nextItem;
 		}
+		lastItem.replace("\n%nextScreen%", "");
+		builder.sendToBoth(proxy);
+		return screens.size();
 	}
 
-	private int listRooms(NativeProxyCommandSender proxy, Object[] args) throws WrapperCommandSyntaxException {
+	private int listRooms(NativeProxyCommandSender proxy, Object[] args) {
 		Set<Room> rooms = CamHead.manager.getRooms();
-		if (rooms.isEmpty()) {
-			sendMessage(proxy, "No room found");
-			return 0;
-		} else {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Rooms: ").append(rooms.size());
-			for (Room room : rooms) {
-				sb.append("\n- ").append(room.getName()).append(getDistanceWith(proxy.getLocation(), room.getLocation()));
-			}
-			sendMessageToBoth(proxy, sb.toString());
-			return rooms.size();
+		MessageBuilder builder = Messages.Resources.LIST_ROOMS_HEADER.replace("%roomCount%", String.valueOf(rooms.size()));
+		MessageBuilder lastItem = builder;
+		for (Room room : rooms) {
+			MessageBuilder nextItem = Messages.Resources.LIST_ROOMS_LINE
+							  .params(room)
+							  .replace("%cameraCount%", String.valueOf(room.getCameras().size()))
+							  .replace("%screenCount%", String.valueOf(room.getScreens().size()))
+							  .replace("%distance%", getDistanceWith(proxy, room.getLocation()));
+			lastItem.replace("%nextRoom%", nextItem);
+			lastItem = nextItem;
 		}
+		lastItem.replace("\n%nextRoom%", "");
+		builder.sendToBoth(proxy);
+		return rooms.size();
 	}
 
-	private String getDistanceWith(Location source, Location target) {
+	private MessageBuilder getDistanceWith(NativeProxyCommandSender source, Location target) {
 		if (source.getWorld().equals(target.getWorld())) {
-			return " (" + roundIfAboveTen(source.distance(target)) + " m)";
+			return Messages.Resources.LIST_DISTANCE_BLOCK
+				.replace("%distance%", roundIfAboveTen(source.getLocation().distance(target)))
+				.replace("%world%", target.getWorld().getName());
 		} else {
-			return " (in " + target.getWorld().getName() + ")";
+			return Messages.Resources.LIST_DISTANCE_OTHER_WORLD
+				.replace("%distance%", "N/A")
+				.replace("%world%", target.getWorld().getName());
 		}
-	}
-
-	private void sendMessageToBoth(NativeProxyCommandSender proxy, String message) {
-		if (!proxy.getCallee().equals(proxy.getCaller())) {
-			sendMessage(proxy.getCallee(), message);
-		}
-		sendMessage(proxy.getCaller(), message);
 	}
 }

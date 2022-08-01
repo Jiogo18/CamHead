@@ -73,7 +73,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	@Override
 	public void setLocation(Location location) {
-		assert location != null;
 		location = location.getBlock().getLocation();
 		if (!this.location.equals(location)) {
 			removeInternal();
@@ -109,6 +108,19 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	@Override
 	public int compareTo(Camera c) {
 		return name.compareTo(c.name);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Camera) {
+			return (room == null || room.equals(((Camera) o).getRoom())) && name.equals(((Camera) o).name);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return ((room != null ? room.getName() : "") + " " + name).hashCode();
 	}
 
 	@Override
@@ -250,29 +262,33 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 			case 1:
 				return facesFree.get(0);
 			case 2:
-				if (facesFree.get(0).getOppositeFace().equals(facesFree.get(1))) {
-					// corridor
-					return facesFree.get(0);
-				} else {
-					// corner
-					if (facesFree.contains(BlockFace.NORTH)) {
-						if (facesFree.contains(BlockFace.EAST)) {
-							return BlockFace.NORTH_EAST;
-						} else {
-							return BlockFace.NORTH_WEST;
-						}
-					} else { // south
-						if (facesFree.contains(BlockFace.EAST)) {
-							return BlockFace.SOUTH_EAST;
-						} else {
-							return BlockFace.SOUTH_WEST;
-						}
-					}
-				}
+				return getAnimationIf2FreeFaces(facesFree);
 			case 3:
 				return facesSolid.get(0).getOppositeFace();
 			default:
 				throw new IllegalStateException("Camera has more than 4 solid blocks: " + facesFree.size());
+		}
+	}
+
+	private static BlockFace getAnimationIf2FreeFaces(List<BlockFace> facesFree) {
+		if (facesFree.get(0).getOppositeFace().equals(facesFree.get(1))) {
+			// corridor
+			return facesFree.get(0);
+		} else {
+			// corner
+			if (facesFree.contains(BlockFace.NORTH)) {
+				if (facesFree.contains(BlockFace.EAST)) {
+					return BlockFace.NORTH_EAST;
+				} else {
+					return BlockFace.NORTH_WEST;
+				}
+			} else { // south
+				if (facesFree.contains(BlockFace.EAST)) {
+					return BlockFace.SOUTH_EAST;
+				} else {
+					return BlockFace.SOUTH_WEST;
+				}
+			}
 		}
 	}
 

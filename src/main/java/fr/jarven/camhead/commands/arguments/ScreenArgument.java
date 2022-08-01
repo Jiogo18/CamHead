@@ -5,6 +5,7 @@ import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.utils.Messages;
 
 public class ScreenArgument extends CustomArgument<Screen, String> {
 	public ScreenArgument(String nodeName) {
@@ -27,13 +28,12 @@ public class ScreenArgument extends CustomArgument<Screen, String> {
 		String screenName = info.input();
 		Room room = info.previousArgs().length > 0 ? (Room) info.previousArgs()[info.previousArgs().length - 1] : null;
 		if (room == null) {
-			throw new CustomArgumentException(new MessageBuilder("camhead.argument.room.unknown").appendArgInput());
+			throw Messages.createCustomArgumentException(info, Messages.Resources.ROOM_UNKNOWN);
 		}
-		return room.getScreen(screenName).orElseThrow(() -> new CustomArgumentException(new MessageBuilder("camhead.argument.screen.unknown").appendArgInput()));
+		return room.getScreen(screenName).orElseThrow(() -> Messages.createCustomArgumentException(info, Messages.Resources.SCREEN_UNKNOWN.replace("%screen%", screenName)));
 	}
 
 	public static Screen getScreen(Object[] args, int argIndex) {
-		assert args[argIndex] instanceof Screen;
 		return (Screen) args[argIndex];
 	}
 }

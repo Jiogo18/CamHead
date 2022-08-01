@@ -1,0 +1,120 @@
+# Edited by Jarven on 2022-07-31.
+# You can disable the auto update if you edit this file.
+version.autoupdate: true
+version.warnings: true
+version: 31/07/2022
+
+camhead.room.unknown: Room %room% unknown.
+camhead.room.alreadyexists: Room %room% already exists.
+camhead.room.addfailed: Failed to create room %room%.
+camhead.room.addsuccess: Room %room% created.
+
+camhead.camera.unknown: Camera %camera% unknown.
+camhead.camera.alreadyexists: Camera %camera% already exists in room %room%.
+camhead.camera.addfailed: Failed to add camera %camera% to room %room%.
+camhead.camera.addsuccess: Camera %camera% added to room %room%.
+
+camhead.screen.unknown: Screen %screen% unknown.
+camhead.screen.alreadyexists: Screen %screen% already exists in room %room%.
+camhead.screen.addfailed: Failed to add screen %screen% to room %room%.
+camhead.screen.addsuccess: Screen %screen% added to room %room%.
+
+camhead.direction.unknown: Direction %direction% unknown.
+camhead.direction.invalid: Direction %direction% invalid.
+
+camhead.date_time: dd/MM/yyyy HH:mm:ss
+
+camhead.info.room: |-
+  Room %room%:
+  - Location: in %world% at %x% %y% %z%
+  - Cameras: %cameraCount%
+  - Screens: %screenCount%
+  - Save: %saveTime%
+  %saving%
+camhead.info.room.savetime: '%dateTime% (%timezone%)'
+camhead.info.room.savetime.never: Never
+camhead.info.room.saving: '- Saving in less than %saveDelay% sec'
+camhead.info.room.notsaving: ''
+camhead.info.camera: |-
+  Camera %camera%:
+  - Location: in %world% at %x% %y% %z%
+  - Room: %room%
+  - Support direction: %supportDirection%
+  - Animation direction: %animationDirection%
+camhead.info.screen: |-
+  Screen %screen%:
+  - Location: in %world% at %x% %y% %z%
+  - Room: %room%
+  - Support direction: %supportDirection%
+  - Facing direction: %facingDirection%
+camhead.info.player: |-
+  Player %player%:
+  - Location: in %world% at %x% %y% %z%
+  - Room: %room%
+  - Camera: %camera%
+  - Leaving: %leaving%
+
+camhead.list.rooms.header: |-
+  Rooms: %roomCount%
+  %nextRoom%
+camhead.list.rooms.room: |-
+  - %room% (%distance%)
+  %nextRoom%
+camhead.list.cameras.header: |-
+  Cameras of %room%: %cameraCount%
+  %nextCamera%
+camhead.list.cameras.camera: |-
+  - %camera% (%distance%)
+  %nextCamera%
+camhead.list.screens.header: |-
+  Screens of %room%: %screenCount%
+  %nextScreen%
+camhead.list.screens.screen: |-
+  - %screen% (%distance%)
+  %nextScreen%
+camhead.list.distance.block: '%distance% m'
+camhead.list.distance.otherworld: 'in %world%'
+
+camhead.move.camera.samelocation: Camera is already at this location.
+camhead.move.camera.failed: Failed to move camera.
+camhead.move.camera.success: Camera moved.
+
+camhead.reload.success: Reloaded with %roomCount% rooms.
+camhead.reload.reloading: Reloading...
+camhead.reload.room.success: Room %room% reloaded.
+
+camhead.remove.room.failed: Failed to remove room %room%.
+camhead.remove.room.success: Room %room% removed.
+camhead.remove.camera.failed: Failed to remove camera %camera% from room %room%.
+camhead.remove.camera.success: Camera %camera% removed from room %room%.
+camhead.remove.screen.failed: Failed to remove screen %screen% from room %room%.
+camhead.remove.screen.success: Screen %screen% removed from room %room%.
+camhead.remove.camera.break.nopermission: You don't have permission to break this camera.
+camhead.remove.camera.break.confirm: 'Are you sure you want to remove this camera? '
+camhead.remove.camera.break.yes: '[Yes]'
+camhead.remove.camera.break.hover: See the command
+camhead.remove.screen.break.nopermission: You don't have permission to break this screen.
+camhead.remove.screen.break.confirm: 'Are you sure you want to remove this screen? '
+camhead.remove.screen.break.yes: '[Yes]'
+camhead.remove.screen.break.hover: See the command
+
+camhead.replace.room.success: '%count% components of %room% replaced.'
+camhead.replace.camera.success: Camera %camera% replaced.
+camhead.replace.screen.success: Screen %screen% replaced.
+
+camhead.rotate.camera.success: Camera rotated.
+camhead.rotate.camera.detailed: "Camera rotated: support=%support% facing=%facing%."
+camhead.rotate.screen.success: Screen rotated.
+camhead.rotate.screen.detailed: "Screen rotated: support=%support% facing=%facing%."
+
+camhead.spectate.leave: No longer spectating.
+camhead.spectate.enter: Now in camera %camera%.
+camhead.spectate.change: Now in camera %camera%.
+camhead.spectate.notspectating: Not spectating.
+camhead.spectate.notaplayer: Not a player.
+camhead.spectate.samecamera: Already in camera %camera%.
+camhead.spectate.sameroom: Already in room %room%.
+camhead.spectate.failed: Failed to spectate.
+camhead.spectate.nocamera: No camera found.
+
+camhead.teleport.notanentity: 'Not an entity: %name%.'

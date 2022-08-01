@@ -5,6 +5,7 @@ import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
+import fr.jarven.camhead.utils.Messages;
 
 public class CameraArgument extends CustomArgument<Camera, String> {
 	public CameraArgument(String nodeName) {
@@ -27,13 +28,12 @@ public class CameraArgument extends CustomArgument<Camera, String> {
 		String cameraName = info.input();
 		Room room = info.previousArgs().length > 0 ? (Room) info.previousArgs()[info.previousArgs().length - 1] : null;
 		if (room == null) {
-			throw new CustomArgumentException(new MessageBuilder("camhead.argument.room.unknown").appendArgInput());
+			throw Messages.createCustomArgumentException(info, Messages.Resources.ROOM_UNKNOWN);
 		}
-		return room.getCamera(cameraName).orElseThrow(() -> new CustomArgumentException(new MessageBuilder("camhead.argument.camera.unknown").appendArgInput()));
+		return room.getCamera(cameraName).orElseThrow(() -> Messages.createCustomArgumentException(info, Messages.Resources.CAMERA_UNKNOWN.replace("%camera%", cameraName)));
 	}
 
 	public static Camera getCamera(Object[] args, int argIndex) {
-		assert args[argIndex] instanceof Camera;
 		return (Camera) args[argIndex];
 	}
 }

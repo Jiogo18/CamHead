@@ -9,6 +9,8 @@ import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
+import fr.jarven.camhead.spectate.CameraSpectator;
+import fr.jarven.camhead.utils.Messages;
 
 public class CommandCamHeadSpectate extends SubCommandBuider {
 	@Override
@@ -18,25 +20,13 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 				Player puppet = getPlayer(proxy);
 				if (puppet == null) return 0;
 				Camera camera = getCamera(args, 1);
-				if (CamHead.spectatorManager.enter(puppet, camera)) {
-					proxy.sendMessage("You are now spectating camera " + camera.getName());
-					return 1;
-				} else {
-					proxy.sendMessage("You are not allowed to spectate camera " + camera.getName());
-					return 0;
-				}
+				return spectateCamera(proxy, puppet, camera);
 			})))
 			.then(roomArgument().executesNative((proxy, args) -> {
 				Player puppet = getPlayer(proxy);
 				if (puppet == null) return 0;
 				Room room = getRoom(args, 0);
-				if (CamHead.spectatorManager.enter(puppet, room)) {
-					proxy.sendMessage("You are now spectating room " + room.getName());
-					return 1;
-				} else {
-					proxy.sendMessage("You are not allowed to spectate room " + room.getName());
-					return 0;
-				}
+				return spectateRoom(proxy, puppet, room);
 			}))
 			.executesNative((proxy, args) -> {
 				Player puppet = getPlayer(proxy);
@@ -51,12 +41,55 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 			});
 	}
 
+	private int spectateCamera(CommandSender sender, Player player, Camera camera) {
+		boolean wasSpectating = CamHead.spectatorManager.getSpectator(player) != null;
+		if (CamHead.spectatorManager.enter(player, camera)) {
+			if (wasSpectating) {
+				Messages.Resources.SPECTATE_ENTER.params(camera).send(sender);
+			} else {
+				Messages.Resources.SPECTATE_CHANGE.params(camera).send(sender);
+			}
+			return 1;
+		} else {
+			if (wasSpectating) {
+				Messages.Resources.SPECTATE_SAME_CAMERA.params(camera).sendFailure(sender);
+			} else {
+				Messages.Resources.SPECTATE_FAILED.params(camera).sendFailure(sender);
+			}
+			return 0;
+		}
+	}
+
+	private int spectateRoom(CommandSender sender, Player player, Room room) {
+		boolean wasSpectating = CamHead.spectatorManager.getSpectator(player) != null;
+		if (CamHead.spectatorManager.enter(player, room)) {
+			CameraSpectator spectator = CamHead.spectatorManager.getSpectator(player);
+			if (wasSpectating) {
+				Messages.Resources.SPECTATE_ENTER.params(spectator.getCamera()).send(sender);
+			} else {
+				Messages.Resources.SPECTATE_CHANGE.params(spectator.getCamera()).send(sender);
+			}
+			return 1;
+		} else {
+			if (wasSpectating) {
+				if (room.getCameras().isEmpty()) {
+					Messages.Resources.SPECTATE_NO_CAMERAS.params(room).sendFailure(sender);
+				} else {
+					Messages.Resources.SPECTATE_SAME_ROOM.params(room).sendFailure(sender);
+				}
+			} else {
+				Messages.Resources.SPECTATE_FAILED.params(room).sendFailure(sender);
+			}
+			return 0;
+		}
+	}
+
 	private Player getPlayer(NativeProxyCommandSender proxy) {
 		CommandSender puppet = proxy.getCallee();
 		if (puppet instanceof Player) {
 			return (Player) puppet;
 		} else {
-			sendFailureMessage(proxy, "Not a player " + puppet.getName());
+			Messages.Resources.SPECTATE_NOT_A_PLAYER.replace("%name%", puppet.getName()).sendFailure(proxy);
 			return null;
 		}
 	}

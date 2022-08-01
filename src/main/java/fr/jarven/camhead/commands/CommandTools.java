@@ -28,7 +28,6 @@ import fr.jarven.camhead.commands.arguments.ScreenArgument;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
@@ -51,10 +50,6 @@ public abstract class CommandTools {
 
 	protected static RoomArgument roomArgument() {
 		return new RoomArgument("room1");
-	}
-
-	protected Set<Room> getRooms() {
-		return CamHead.manager.getRooms();
 	}
 
 	protected ArgumentTree generateCameraSelector(Function<CameraArgument, ArgumentTree> generateAfter) {
@@ -121,33 +116,17 @@ public abstract class CommandTools {
 		return "in " + location.getWorld().getName() + " at " + getVectorString(location.toVector());
 	}
 
+	public static String translateLocation(String message, Location location) {
+		return message.replace("%world%", location.getWorld().getName())
+			.replace("%x%", String.valueOf(location.getX()))
+			.replace("%y%", String.valueOf(location.getY()))
+			.replace("%z%", String.valueOf(location.getZ()))
+			.replace("%yaw%", String.valueOf(location.getYaw()))
+			.replace("%pitch%", String.valueOf(location.getPitch()));
+	}
+
 	public static BaseComponent[] createBaseComponent(String string) {
 		return new ComponentBuilder(string).create();
-	}
-
-	protected void sendMessage(CommandSender sender, StringBuilder string) {
-		sendMessage(sender, string.toString());
-	}
-
-	protected void sendMessage(CommandSender sender, String string) {
-		sender.sendMessage(string);
-	}
-
-	protected void sendMessageAndLog(CommandSender sender, String string) {
-		sender.sendMessage(string);
-		CamHead.LOGGER.info(string);
-	}
-
-	protected void sendMessage(CommandSender sender, BaseComponent[] message) {
-		sender.spigot().sendMessage(message);
-	}
-
-	protected void sendFailureMessage(CommandSender sender, String string) {
-		sendFailureMessage(sender, new ComponentBuilder(string).color(ChatColor.RED).create());
-	}
-
-	protected void sendFailureMessage(CommandSender sender, BaseComponent[] components) {
-		sender.spigot().sendMessage(components);
 	}
 
 	protected String roundIfAboveTen(double n) {
@@ -168,6 +147,9 @@ public abstract class CommandTools {
 	}
 
 	public static void onDisable() {
+		if (!CommandAPI.isLoaded()) {
+			CamHead.LOGGER.severe("CommandAPI is not loaded, cannot disable. You must restart your server. (This can happen if another plugin calls CommandAPI.onDisable())");
+		}
 		List<RegisteredCommand> commands = CommandAPI.getRegisteredCommands();
 		Set<String> commandsName = commands.stream().map(c -> c.commandName()).collect(Collectors.toSet());
 		CamHead.LOGGER.info("Unregistering " + commandsName.size() + " commands");

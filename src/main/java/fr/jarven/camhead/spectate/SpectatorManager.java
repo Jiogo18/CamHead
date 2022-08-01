@@ -15,12 +15,17 @@ import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
 
 public class SpectatorManager {
-	private Map<UUID, CameraSpectator> spectators = new HashMap<>();
+	private final Map<UUID, CameraSpectator> spectators = new HashMap<>();
 	private boolean allowSneakToLeave = true;
 	private boolean allowClickToChange = true;
 	private boolean allowSlotToChange = true;
 	private boolean allowEnterByScreen = true;
 	private boolean allowEnterByCamera = false;
+	private final Random random = new Random();
+
+	public SpectatorManager() {
+		random.setSeed(System.currentTimeMillis());
+	}
 
 	public boolean isSpectator(OfflinePlayer player) {
 		return spectators.containsKey(player.getUniqueId());
@@ -50,7 +55,7 @@ public class SpectatorManager {
 		if (room.getCameras().isEmpty()) {
 			return false;
 		} else {
-			int index = new Random().nextInt(room.getCameras().size());
+			int index = random.nextInt(room.getCameras().size());
 			Camera camera = room.getCameras().toArray(new Camera[0])[index];
 			return enter(player, camera);
 		}

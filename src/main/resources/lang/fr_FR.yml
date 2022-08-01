@@ -1,0 +1,120 @@
+# Modifié par Jarven le 2022-07-31.
+# Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
+version.autoupdate: true
+version.warnings: true
+version: 31/07/2022
+
+camhead.room.unknown: Pièce %room% inconnue.
+camhead.room.alreadyexists: La pièce %room% existe déjà.
+camhead.room.addfailed: Échec de la création de la pièce %room%.
+camhead.room.addsuccess: Pièce %room% créée.
+
+camhead.camera.unknown: Caméra %camera% inconnue.
+camhead.camera.alreadyexists: La caméra %camera% existe déjà dans la pièce %room%.
+camhead.camera.addfailed: Échec de l'ajout de la caméra %camera% à la pièce %room%.
+camhead.camera.addsuccess: Caméra %camera% ajoutée à la pièce %room%.
+
+camhead.screen.unknown: Écran %room% inconnu.
+camhead.screen.alreadyexists: L'écran %screen% existe déjà dans la pièce %room%.
+camhead.screen.addfailed: Échec de l'ajout de l'écran %screen% à la pièce %room%.
+camhead.screen.addsuccess: Écran %screen% ajouté à la pièce %room%.
+
+camhead.direction.unknown: Direction %direction% inconnue.
+camhead.direction.invalid: Direction %direction% invalide.
+
+camhead.date_time: dd/MM/yyyy HH:mm:ss
+
+camhead.info.room: |-
+  Pièce %room% :
+  - Localisation : dans %world% à %x% %y% %z%
+  - Caméras : %cameraCount%
+  - Écrans : %screenCount%
+  - Sauvegarde : %saveTime%
+  %saving%
+camhead.info.room.savetime: '%dateTime% (%timezone%)'
+camhead.info.room.savetime.never: Jamais
+camhead.info.room.saving: '- Sauvegarde dans moins de %saveDelay% sec'
+camhead.info.room.notsaving: ''
+camhead.info.camera: |-
+  Caméra %camera% :
+  - Localisation : dans %world% à %x% %y% %z%
+  - Pièce : %room%
+  - Direction du support : %supportDirection%
+  - Direction d''animation : %animationDirection%
+camhead.info.screen: |-
+  Écran %screen% :
+  - Localisation : dans %world% à %x% %y% %z%
+  - Pièce : %room%
+  - Direction du support : %supportDirection%
+  - Direction : %facingDirection%
+camhead.info.player: |-
+  Joueur %player% :
+  - Localisation : dans %world% à %x% %y% %z%
+  - Pièce : %room%
+  - Caméra : %camera%
+  - Quitte : %leaving%
+
+camhead.list.rooms.header: |-
+  Pièces : %roomCount%
+  %nextRoom%
+camhead.list.rooms.room: |-
+  - %room% (%distance%)
+  %nextRoom%
+camhead.list.cameras.header: |-
+  Caméras de %room% : %cameraCount%
+  %nextCamera%
+camhead.list.cameras.camera: |-
+  - %camera% (%distance%)
+  %nextCamera%
+camhead.list.screens.header: |-
+  Écrans de %room% : %screenCount%
+  %nextScreen%
+camhead.list.screens.screen: |-
+  - %screen% (%distance%)
+  %nextScreen%
+camhead.list.distance.block: '%distance% m'
+camhead.list.distance.otherworld: 'dans %world%'
+
+camhead.move.camera.samelocation: 'La caméra est déjà à cet endroit.'
+camhead.move.camera.failed: 'Échec du déplacement de la caméra.'
+camhead.move.camera.success: 'Caméra déplacée.'
+
+camhead.reload.success: Rechargé avec %roomCount% pièces.
+camhead.reload.reloading: Rechargement...
+camhead.reload.room.success: Pièce %room% rechargée.
+
+camhead.remove.room.failed: Échec de la suppression de la pièce %room%.
+camhead.remove.room.success: Pièce %room% supprimée.
+camhead.remove.camera.failed: Échec de la suppression de la caméra %camera% de la pièce %room%.
+camhead.remove.camera.success: Caméra %camera% supprimée de la pièce %room%.
+camhead.remove.screen.failed: Échec de la suppression de l'écran %screen% de la pièce %room%.
+camhead.remove.screen.success: Écran %screen% supprimé de la pièce %room%.
+camhead.remove.camera.break.nopermission: 'Vous n''avez pas la permission de détruire cette caméra.'
+camhead.remove.camera.break.confirm: 'Êtes-vous sûr de vouloir détruire cette caméra ? '
+camhead.remove.camera.break.yes: '[Oui]'
+camhead.remove.camera.break.hover: Voir la commande
+camhead.remove.screen.break.nopermission: 'Vous n''avez pas la permission de détruire cet écran.'
+camhead.remove.screen.break.confirm: 'Êtes-vous sûr de vouloir détruire cet écran ? '
+camhead.remove.screen.break.yes: '[Oui]'
+camhead.remove.screen.break.hover: Voir la commande
+
+camhead.replace.room.success: '%count% composants de %room% replacés.'
+camhead.replace.camera.success: Caméra %camera% replacée.
+camhead.replace.screen.success: Écran %screen% replacé.
+
+camhead.rotate.camera.success: Caméra %camera% pivotée.
+camhead.rotate.camera.detailed: "Caméra pivotée : support=%support% facing=%facing%."
+camhead.rotate.screen.success: Écran %screen% pivoté.
+camhead.rotate.screen.detailed: "Écran pivoté : support=%support% facing=%facing%."
+
+camhead.spectate.leave: Sortie de la vue caméra.
+camhead.spectate.enter: Entré dans la caméra %camera%.
+camhead.spectate.change: Passé à la caméra %camera%.
+camhead.spectate.notspectating: Pas dans une caméra.
+camhead.spectate.notaplayer: Pas un joueur.
+camhead.spectate.samecamera: Déjà dans cette caméra.
+camhead.spectate.sameroom: Déjà dans cette pièce.
+camhead.spectate.failed: Échec de la vue caméra.
+camhead.spectate.nocamera: Pas de caméra dans cette pièce.
+
+camhead.teleport.notanentity: '%name% n''est pas une entité.'

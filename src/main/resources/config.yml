@@ -2,6 +2,8 @@
 cameraSpeed: 1
 # Delay in seconds before saving the room
 saveDelay: 10
+# Default language
+lang: en_US
 
 # Allow the player to sneak to leave the camera
 allowSneakToLeave: true

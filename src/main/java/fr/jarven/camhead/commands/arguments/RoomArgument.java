@@ -5,6 +5,7 @@ import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Room;
+import fr.jarven.camhead.utils.Messages;
 
 public class RoomArgument extends CustomArgument<Room, String> {
 	public RoomArgument(String nodeName) {
@@ -22,11 +23,10 @@ public class RoomArgument extends CustomArgument<Room, String> {
 
 	private static Room parseRoom(CustomArgumentInfo<String> info) throws CustomArgumentException {
 		String roomName = info.input();
-		return CamHead.manager.getRoom(roomName).orElseThrow(() -> new CustomArgumentException(new MessageBuilder("camhead.argument.room.unknown").appendArgInput()));
+		return CamHead.manager.getRoom(roomName).orElseThrow(() -> Messages.createCustomArgumentException(info, Messages.Resources.ROOM_UNKNOWN.replace("%room%", roomName)));
 	}
 
 	public static Room getRoom(Object[] args, int argIndex) {
-		assert args[argIndex] instanceof Room;
 		return (Room) args[argIndex];
 	}
 }

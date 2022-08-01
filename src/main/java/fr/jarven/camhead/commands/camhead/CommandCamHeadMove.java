@@ -8,6 +8,7 @@ import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.utils.Messages;
 
 public class CommandCamHeadMove extends SubCommandBuider {
 	@Override
@@ -20,40 +21,40 @@ public class CommandCamHeadMove extends SubCommandBuider {
 
 	private int moveCamera(CommandSender sender, Camera camera, Location destination) {
 		if (camera.getLocation().equals(destination)) {
-			sendFailureMessage(sender, "Camera is already at this location");
+			Messages.Resources.MOVE_CAMERA_SAME_LOCATION.params(camera, destination).sendFailure(sender);
 			return 0;
 		}
 		if (!camera.teleport(destination)) {
-			sendFailureMessage(sender, "Could not move camera");
+			Messages.Resources.MOVE_CAMERA_FAILED.params(camera, destination).sendFailure(sender);
 			return 0;
 		}
-		sendMessage(sender, "Camera moved");
+		Messages.Resources.MOVE_CAMERA_SUCCESS.params(camera, destination).send(sender);
 		return 1;
 	}
 
 	private int moveScreen(CommandSender sender, Screen screen, Location destination) {
 		if (screen.getLocation().equals(destination)) {
-			sendFailureMessage(sender, "Screen is already at this location");
+			Messages.Resources.MOVE_SCREEN_SAME_LOCATION.params(screen, destination).sendFailure(sender);
 			return 0;
 		}
 		if (!screen.teleport(destination)) {
-			sendFailureMessage(sender, "Could not move screen");
+			Messages.Resources.MOVE_SCREEN_FAILED.params(screen, destination).sendFailure(sender);
 			return 0;
 		}
-		sendMessage(sender, "Screen moved");
+		Messages.Resources.MOVE_SCREEN_SUCCESS.params(screen, destination).send(sender);
 		return 1;
 	}
 
 	private int moveRoom(CommandSender sender, Room room, Location destination) {
 		if (room.getLocation().equals(destination)) {
-			sendFailureMessage(sender, "Room is already at this location");
+			Messages.Resources.MOVE_ROOM_SAME_LOCATION.params(room, destination).sendFailure(sender);
 			return 0;
 		}
 		if (!room.teleport(destination)) {
-			sendFailureMessage(sender, "Could not move room");
+			Messages.Resources.MOVE_ROOM_FAILED.params(room, destination).sendFailure(sender);
 			return 0;
 		}
-		sendMessage(sender, "Room moved");
+		Messages.Resources.MOVE_ROOM_SUCCESS.params(room, destination).send(sender);
 		return 1;
 	}
 }

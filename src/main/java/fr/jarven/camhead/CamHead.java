@@ -20,6 +20,7 @@ import fr.jarven.camhead.listeners.PlayerInteractBlocks;
 import fr.jarven.camhead.listeners.SpectatorInteractCamera;
 import fr.jarven.camhead.spectate.SpectatorManager;
 import fr.jarven.camhead.task.CameraAnimator;
+import fr.jarven.camhead.utils.Messages;
 
 /*
  * camhead java plugin
@@ -30,6 +31,7 @@ public class CamHead extends JavaPlugin {
 	public static RoomManager manager;
 	public static SpectatorManager spectatorManager;
 
+	@Override
 	public void onLoad() {
 		instance = this;
 		Path dataFolder = getDataFolder().toPath();
@@ -41,6 +43,7 @@ public class CamHead extends JavaPlugin {
 		ConfigurationSerialization.registerClass(Screen.class);
 	}
 
+	@Override
 	public void onEnable() {
 		super.onEnable();
 		LOGGER.info("Loading plugin & configurations...");
@@ -69,13 +72,14 @@ public class CamHead extends JavaPlugin {
 		manager.loadConfig(config);
 		spectatorManager.loadConfig(config);
 		CameraAnimator.loadConfig(config);
+		Messages.loadConfig(config);
 	}
 
+	@Override
 	public void onDisable() {
 		super.onDisable();
 		CommandTools.onDisable();
 		CameraAnimator.onDisable();
-		CommandAPI.onDisable();
 		if (spectatorManager != null) spectatorManager.onDisable();
 		if (manager != null) manager.onDisable();
 		spectatorManager = null;

@@ -62,7 +62,6 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 
 	@Override
 	public void setLocation(Location location) {
-		assert location != null;
 		location = location.getBlock().getLocation();
 		if (!this.location.equals(location)) {
 			removeInternal();
@@ -97,6 +96,19 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 	@Override
 	public int compareTo(Screen c) {
 		return name.compareTo(c.name);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Screen) {
+			return (room == null || room.equals(((Screen) o).getRoom())) && name.equals(((Screen) o).name);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return ((room != null ? room.getName() : "") + " " + name).hashCode();
 	}
 
 	@Override
@@ -189,7 +201,7 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 		}
 		if (facesSolid.size() == 1) {
 			return facesSolid.get(0).getOppositeFace();
-		} else if (facesFree.size() > 0) {
+		} else if (!facesFree.isEmpty()) {
 			return facesFree.get(0);
 		} else {
 			return BlockFace.NORTH;

@@ -9,19 +9,24 @@ A Minecraft Plugin to add cameras to your server.
 - Screen: A screen is a block used to enter the cameras.
 
 When entering a screen (right click), you are teleported to the camera.
+
 You can sneak to leave the camera, or click to change the camera.
+
 Currently, you have to use the command `/camhead add` to add a camera/screen.
+
 To remove a camera/screen you can use the command `/camhead remove` or you can break the block to get the command in chat.
 
 ## Commands
 
 All commands work with `/execute ... run ...`.
+
 The plugin is reloadable, which means `/reload` won't break it (but avoid using /reload, use `/camhead reload` instead).
 
-<room> is a selector with the name of the room (i.e. `room1`).
-<camera> is a selector with the name of the room followed by the name of the camera (i.e. `room1 camera1`).
-<screen> is a selector with the name of the room followed by the name of the screen (i.e. `room1 screen1`).
-<component> is a selector for a room, a screen or a camera.
+Selectors:
+- `<room>` is a selector with the name of the room (i.e. `room1`).
+- `<camera>` is a selector with the name of the room followed by the name of the camera (i.e. `room1 camera1`).
+- `<screen>` is a selector with the name of the room followed by the name of the screen (i.e. `room1 screen1`).
+- `<component>` is a selector for a room, a screen or a camera.
 
 | Command                                                                              | Description                              |
 | ------------------------------------------------------------------------------------ | ---------------------------------------- |

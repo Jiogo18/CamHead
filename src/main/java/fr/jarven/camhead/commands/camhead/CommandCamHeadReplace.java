@@ -7,6 +7,7 @@ import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.utils.Messages;
 
 public class CommandCamHeadReplace extends SubCommandBuider {
 	@Override
@@ -19,13 +20,13 @@ public class CommandCamHeadReplace extends SubCommandBuider {
 
 	private int replaceCamera(CommandSender sender, Camera camera) {
 		camera.replace();
-		sendMessage(sender, "Camera " + camera.getName() + " replaced");
+		Messages.Resources.REPLACE_CAMERA_SUCCESS.params(camera, camera.getRoom()).send(sender);
 		return 1;
 	}
 
 	private int replaceScreen(CommandSender sender, Screen screen) {
 		screen.replace();
-		sendMessage(sender, "Screen " + screen.getName() + " replaced");
+		Messages.Resources.REPLACE_SCREEN_SUCCESS.params(screen, screen.getRoom()).send(sender);
 		return 1;
 	}
 
@@ -39,7 +40,7 @@ public class CommandCamHeadReplace extends SubCommandBuider {
 			screen.replace();
 			count++;
 		}
-		sendMessage(sender, count + " components of " + room.getName() + " replaced");
+		Messages.Resources.REPLACE_ROOM_SUCCESS.params(room).replace("%count%", String.valueOf(count)).send(sender);
 		return 1;
 	}
 }

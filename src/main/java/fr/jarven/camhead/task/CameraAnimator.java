@@ -16,6 +16,8 @@ public class CameraAnimator {
 	private static final Map<Camera, AnimationStep> camerasAngle = new HashMap<>();
 	public static double cameraSpeed = 5;
 
+	private CameraAnimator() {}
+
 	public static void onEnable(JavaPlugin plugin) {
 		task = new BukkitRunnable() {
 			@Override

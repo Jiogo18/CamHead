@@ -14,12 +14,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import fr.jarven.camhead.CamHead;
-import fr.jarven.camhead.commands.CommandTools;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.ComponentBase;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
 import fr.jarven.camhead.spectate.CameraSpectator;
+import fr.jarven.camhead.utils.Messages;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -82,22 +82,37 @@ public class PlayerInteractBlocks implements Listener {
 			switch (event.getAction()) {
 				case LEFT_CLICK_BLOCK:
 					event.setCancelled(true);
-					if (player.hasPermission("camhead.maker")) {
-						removePluginBlock(player, component);
-					} else if (player.hasPermission("camhead.admin") && player.isSneaking()) {
-						player.sendMessage("§cYou must have the permission camhead.maker to remove this block");
-					}
+					onPlayerLeftClickComponent(player, component);
 					break;
 				case RIGHT_CLICK_BLOCK:
-					if (player.isSneaking() && (player.hasPermission("camhead.maker") || player.hasPermission("camhead.admin"))) {
-						infoPluginBlock(player, component);
-					} else {
-						usePluginBlock(player, component);
-					}
+					event.setCancelled(true);
+					onPlayerRightClickComponent(player, component);
 					break;
 				default:
 					break;
 			}
+		}
+	}
+
+	private void onPlayerLeftClickComponent(Player player, ComponentBase component) {
+		if (player.hasPermission("camhead.maker")) {
+			removePluginBlock(player, component);
+		} else if (player.hasPermission("camhead.admin") && player.isSneaking()) {
+			if (component instanceof Camera) {
+				Messages.Resources.REMOVE_CAMERA_BREAK_PERMISSION.sendFailure(player);
+			} else if (component instanceof Screen) {
+				Messages.Resources.REMOVE_SCREEN_BREAK_PERMISSION.sendFailure(player);
+			}
+		} else {
+			throw new IllegalStateException("Unknow component " + component);
+		}
+	}
+
+	private void onPlayerRightClickComponent(Player player, ComponentBase component) {
+		if (player.isSneaking() && (player.hasPermission("camhead.maker") || player.hasPermission("camhead.admin"))) {
+			infoPluginBlock(player, component);
+		} else {
+			usePluginBlock(player, component);
 		}
 	}
 
@@ -134,23 +149,29 @@ public class PlayerInteractBlocks implements Listener {
 	}
 
 	private void removePluginBlock(Player player, ComponentBase component) {
-		ComponentBuilder builder = new ComponentBuilder("Are you sure you want to remove this ");
+		ComponentBuilder builder;
+		Messages.Resources yes;
+		Messages.Resources hover;
 		String removeCommand;
 		if (component instanceof Camera) {
-			builder.append("camera ? ");
+			builder = new ComponentBuilder(Messages.Resources.REMOVE_CAMERA_BREAK_CONFIRM.getBuilder().build(player));
 			removeCommand = "/camhead remove camera " + ((Camera) component).getRoom().getName() + " " + component.getName();
+			yes = Messages.Resources.REMOVE_CAMERA_BREAK_YES;
+			hover = Messages.Resources.REMOVE_CAMERA_BREAK_HOVER;
 		} else if (component instanceof Screen) {
-			builder.append("screen ? ");
+			builder = new ComponentBuilder(Messages.Resources.REMOVE_SCREEN_BREAK_CONFIRM.getBuilder().build(player));
 			removeCommand = "/camhead remove screen " + ((Screen) component).getRoom().getName() + " " + component.getName();
+			yes = Messages.Resources.REMOVE_SCREEN_BREAK_YES;
+			hover = Messages.Resources.REMOVE_SCREEN_BREAK_HOVER;
 		} else {
-			throw new IllegalArgumentException("Unknown component type");
+			throw new IllegalArgumentException("Unknown component " + component);
 		}
 		builder.append(
 			new ComponentBuilder("")
 				.color(ChatColor.YELLOW)
-				.append("[Yes]")
+				.append(yes.getBuilder().build(player))
 				.event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, removeCommand))
-				.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("See the command")))
+				.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover.getBuilder().build(player))))
 				.create());
 		player.spigot().sendMessage(builder.create());
 	}
@@ -170,18 +191,18 @@ public class PlayerInteractBlocks implements Listener {
 	private void infoPluginBlock(Player player, ComponentBase component) {
 		if (component instanceof Camera) {
 			Camera camera = (Camera) component;
-			StringBuilder sb = new StringBuilder();
-			sb.append("Camera ").append(camera.getName());
-			sb.append("\n- Location: ").append(CommandTools.getLocationString(camera.getLocation()));
-			sb.append("\n- Room: ").append(camera.getRoom().getName());
-			player.sendMessage(sb.toString());
+			Messages.Resources.INFO_CAMERA
+				.params(camera, camera.getLocation(), camera.getRoom())
+				.replace("%supportDirection%", camera.getSupportDirection().name())
+				.replace("%animationDirection%", camera.getAnimationDirection().name())
+				.send(player);
 		} else if (component instanceof Screen) {
 			Screen screen = (Screen) component;
-			StringBuilder sb = new StringBuilder();
-			sb.append("Screen ").append(screen.getName());
-			sb.append("\n- Location: ").append(CommandTools.getLocationString(screen.getLocation()));
-			sb.append("\n- Room: ").append(screen.getRoom().getName());
-			player.sendMessage(sb.toString());
+			Messages.Resources.INFO_SCREEN
+				.params(screen, screen.getLocation(), screen.getRoom())
+				.replace("%supportDirection%", screen.getSupportDirection().name())
+				.replace("%facingDirection%", screen.getFacingDirection().name())
+				.send(player);
 		} else {
 			throw new IllegalStateException("Unknown component " + component);
 		}

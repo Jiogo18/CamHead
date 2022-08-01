@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -27,8 +28,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 	public Room(String name, Location location) {
 		this.name = name;
 		this.location = location.getBlock().getLocation();
-		this.cameras = new TreeSet<Camera>();
-		this.screens = new TreeSet<Screen>();
+		this.cameras = new TreeSet<>();
+		this.screens = new TreeSet<>();
 	}
 
 	public Camera addCamera(String name, Location location) {
@@ -103,7 +104,6 @@ public class Room implements ComponentBase, Comparable<Room> {
 
 	@Override
 	public void setLocation(Location location) {
-		assert location != null;
 		location = location.getBlock().getLocation();
 		if (!this.location.equals(location)) {
 			this.location = location;
@@ -131,6 +131,19 @@ public class Room implements ComponentBase, Comparable<Room> {
 	@Override
 	public int compareTo(Room c) {
 		return name.compareTo(c.name);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Room) {
+			return name.equals(((Room) o).name);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 
 	public Camera getPreviousCamera(Camera camera) {
@@ -217,23 +230,19 @@ public class Room implements ComponentBase, Comparable<Room> {
 		if (!file.exists())
 			return;
 
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+		config = YamlConfiguration.loadConfiguration(file);
 		this.location = config.getLocation("location");
 		this.cameraId = config.getInt("cameraId");
 		this.screenId = config.getInt("screenId");
 		this.saveTimestamp = config.getLong("saveTimestamp");
 
-		SortedSet<Camera> previousCameras = new TreeSet<Camera>(this.cameras);
-		SortedSet<Screen> previousScreens = new TreeSet<Screen>(this.screens);
+		SortedSet<Camera> previousCameras = new TreeSet<>(this.cameras);
+		SortedSet<Screen> previousScreens = new TreeSet<>(this.screens);
 		Set<String> camerasName = ((MemorySection) config.get("cameras")).getKeys(false);
 		Set<String> screensName = ((MemorySection) config.get("screens")).getKeys(false);
 		// Remove cameras and screens that were removed from the config
-		for (Camera camera : previousCameras) {
-			if (!camerasName.contains(camera.getName())) removeCamera(camera);
-		}
-		for (Screen screen : previousScreens) {
-			if (!screensName.contains(screen.getName())) removeScreen(screen);
-		}
+		previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).forEach(Camera::removeInternal);
+		previousScreens.stream().filter(s -> !screensName.contains(s.getName())).forEach(Screen::removeInternal);
 		// Add cameras and screens that were added to the config
 		// Update cameras and screens that were changed in the config
 		camerasName.forEach(cameraName -> {
@@ -281,8 +290,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 		room.screenId = config.getInt("screenId");
 		room.saveTimestamp = config.getLong("saveTimestamp");
 
-		Set<String> camerasName = ((MemorySection) config.get("cameras")).getKeys(false);
-		Set<String> screensName = ((MemorySection) config.get("screens")).getKeys(false);
+		Set<String> camerasName = config.contains("cameras") ? ((MemorySection) config.get("cameras")).getKeys(false) : Collections.emptySet();
+		Set<String> screensName = config.contains("screens") ? ((MemorySection) config.get("screens")).getKeys(false) : Collections.emptySet();
 		camerasName.forEach(cameraName -> {
 			try {
 				Camera camera = (Camera) config.get("cameras." + cameraName, Camera.class);
