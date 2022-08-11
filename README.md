@@ -23,10 +23,10 @@ All commands work with `/execute ... run ...`.
 The plugin is reloadable, which means `/reload` won't break it (but avoid using /reload, use `/camhead reload` instead).
 
 Selectors:
-- `\<room\>` is a selector with the name of the room (i.e. `room1`).
-- `\<camera\>` is a selector with the name of the room followed by the name of the camera (i.e. `room1 camera1`).
-- `\<screen\>` is a selector with the name of the room followed by the name of the screen (i.e. `room1 screen1`).
-- `\<component\>` is a selector for a room, a screen or a camera.
+- `<room>` is a selector with the name of the room (i.e. `room1`).
+- `<camera>` is a selector with the name of the room followed by the name of the camera (i.e. `room1 camera1`).
+- `<screen>` is a selector with the name of the room followed by the name of the screen (i.e. `room1 screen1`).
+- `<component>` is a selector for a room, a screen or a camera.
 
 | Command                                                                              | Description                              |
 | ------------------------------------------------------------------------------------ | ---------------------------------------- |
