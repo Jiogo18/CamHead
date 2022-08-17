@@ -1,3 +1,6 @@
+# The plugin uses bukkit-api 1.16.5, which means that the plugin *may* work on non-1.16.5 servers, but it is not guaranteed.
+# Tested on Paper 1.16.5
+
 # Speed of the camera (degrees/tick)
 cameraSpeed: 1
 # Delay in seconds before saving the room
@@ -20,6 +23,7 @@ camera:
   materials:
     support: END_ROD
     cameraItem: END_ROD
+    cameraItemCustomModelData: 0
   
   # The gamemode to use when the player is in the camera
   # Survival: The player can break blocks. (not recommanded)

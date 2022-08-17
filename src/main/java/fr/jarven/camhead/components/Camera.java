@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Directional;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import fr.jarven.camhead.task.CameraAnimator;
 public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationSerializable {
 	public static Material MATERIAL_SUPPORT = Material.END_ROD;
 	public static Material MATERIAL_CAMERA = Material.END_ROD;
+	public static int MATERIAL_CAMERA_CUSTOM_MODEL_DATA = 0;
 	public static final BlockFace[] SUPPORT_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP};
 	public static final BlockFace[] FACING = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
 	private Room room;
@@ -174,7 +176,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		cameraman.setVisible(false);
 		cameraman.setInvulnerable(true);
 		cameraman.setGravity(false);
-		cameraman.getEquipment().setHelmet(new ItemStack(MATERIAL_CAMERA));
+		ItemStack cameraItem = new ItemStack(MATERIAL_CAMERA);
+		ItemMeta meta = cameraItem.getItemMeta();
+		meta.setCustomModelData(MATERIAL_CAMERA_CUSTOM_MODEL_DATA);
+		cameraItem.setItemMeta(meta);
+		cameraman.getEquipment().setHelmet(cameraItem);
 	}
 
 	public void replaceSeat() {
@@ -330,5 +336,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	public static void loadConfig(YamlConfiguration config) {
 		MATERIAL_SUPPORT = Material.valueOf(config.getString("camera.materials.support", "END_RODE"));
 		MATERIAL_CAMERA = Material.valueOf(config.getString("camera.materials.cameraItem", "END_RODE"));
+		MATERIAL_CAMERA_CUSTOM_MODEL_DATA = config.getInt("camera.materials.cameraItemCustomModelData", 0);
 	}
 }
