@@ -3,13 +3,14 @@ package fr.jarven.camhead.components;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Directional;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Directional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,9 +159,12 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceSupport() {
-		location.getBlock().setType(MATERIAL_SUPPORT);
-		if (location.getBlock() instanceof Directional) {
-			((Directional) location.getBlock()).setFacingDirection(supportDirection);
+		Block block = location.getBlock();
+		block.setType(MATERIAL_SUPPORT);
+		if (block.getBlockData() instanceof Directional) {
+			Directional data = (Directional) block.getBlockData();
+			data.setFacing(supportDirection.getOppositeFace());
+			block.setBlockData(data);
 		}
 	}
 
@@ -240,7 +244,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 				return direction;
 			}
 		}
-		return SUPPORT_DIRECTIONS.length > 0 ? SUPPORT_DIRECTIONS[0] : null;
+		return SUPPORT_DIRECTIONS.length > 0 ? BlockFace.DOWN : null;
 	}
 
 	/**
