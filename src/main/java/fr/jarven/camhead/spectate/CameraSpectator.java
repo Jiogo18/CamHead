@@ -16,7 +16,9 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	private boolean leaving = false;
 
 	public CameraSpectator(Player player, Camera camera) {
-		assert player != null && camera != null;
+		if (player == null || camera == null) {
+			throw new IllegalArgumentException("player and camera must not be null");
+		}
 		this.player = player;
 		this.camera = camera;
 		this.stateBeforeEnter = new PlayerState(player);
@@ -62,13 +64,18 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setInvisible(true);
 		player.setCollidable(false);
 		player.setCanPickupItems(false);
+		if (GAMEMODE == GameMode.SPECTATOR) {
+			player.setSpectatorTarget(null);
+		}
 		camera.getCameraSeat().addPassenger(player);
 		leaving = false;
 		return true;
 	}
 
 	public boolean enter(Camera camera) {
-		assert camera != null;
+		if (camera == null) {
+			throw new IllegalArgumentException("camera must not be null");
+		}
 		if (this.camera != camera) {
 			if (this.camera != null) {
 				this.camera.getCameraSeat().removePassenger(player);
@@ -93,16 +100,16 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	}
 
 	private class PlayerState {
-		final private Player player;
-		final private GameMode gameMode;
-		final private Location location;
-		final private boolean hadAllowFlight;
-		final private boolean wasFlying;
-		final private float flySpeed;
-		final private boolean wasInvisible;
-		final private boolean hadGravity;
-		final private boolean wasCollidable;
-		final private boolean wasCanPickupItems;
+		private final Player player;
+		private final GameMode gameMode;
+		private final Location location;
+		private final boolean hadAllowFlight;
+		private final boolean wasFlying;
+		private final float flySpeed;
+		private final boolean wasInvisible;
+		private final boolean hadGravity;
+		private final boolean wasCollidable;
+		private final boolean wasCanPickupItems;
 
 		private PlayerState(Player player) {
 			this.player = player;
