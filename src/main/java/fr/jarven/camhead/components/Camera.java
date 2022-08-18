@@ -208,8 +208,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		ser.put("location", location);
 		ser.put("supportDirection", supportDirection.toString());
 		ser.put("animationDirection", animationDirection.toString());
-		ser.put("cameramanUUID", cameraman.getUniqueId().toString());
-		ser.put("seatUUID", seat.getUniqueId().toString());
+		ser.put("cameramanUUID", cameraman != null ? cameraman.getUniqueId().toString() : "");
+		ser.put("seatUUID", seat != null ? seat.getUniqueId().toString() : "");
 		return ser;
 	}
 
