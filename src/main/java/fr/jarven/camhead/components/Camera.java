@@ -11,20 +11,25 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.CameraAnimator;
 
 public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationSerializable {
 	public static Material MATERIAL_SUPPORT = Material.END_ROD;
 	public static Material MATERIAL_CAMERA = Material.END_ROD;
 	public static int MATERIAL_CAMERA_CUSTOM_MODEL_DATA = 0;
-	public static final BlockFace[] SUPPORT_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP};
+	public static Map<BlockFace, Vector> CAMERAMAN_OFFSET = new EnumMap<>(BlockFace.class);
+	public static Map<BlockFace, Vector> SEAT_OFFSET = new EnumMap<>(BlockFace.class);
+	public static final BlockFace[] SUPPORT_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
 	public static final BlockFace[] FACING = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
 	private Room room;
 	private final String name;
@@ -169,7 +174,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceCameraman() {
-		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5);
+		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
 		if (cameraman == null || cameraman.isDead()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameraman.addScoreboardTag("camhead_cameraman");
@@ -188,7 +193,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceSeat() {
-		Location seatLocation = location.clone().add(0.5, -2.25, 0.5);
+		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
 		if (seat == null || seat.isDead()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
 			seat.addScoreboardTag("camhead_seat");
@@ -341,5 +346,47 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		MATERIAL_SUPPORT = Material.valueOf(config.getString("camera.materials.support", "END_RODE"));
 		MATERIAL_CAMERA = Material.valueOf(config.getString("camera.materials.cameraItem", "END_RODE"));
 		MATERIAL_CAMERA_CUSTOM_MODEL_DATA = config.getInt("camera.materials.cameraItemCustomModelData", 0);
+		CAMERAMAN_OFFSET.clear();
+		for (String key : config.getConfigurationSection("camera.cameramanOffset").getKeys(false)) {
+			String[] vec = config.getString("camera.cameramanOffset." + key).split(",");
+			if (vec.length != 3) {
+				CamHead.LOGGER.warning("camera.cameramanOffset." + key + " is not a vector (3 numbers separated by commas)");
+				continue;
+			}
+			try {
+				double x = Double.parseDouble(vec[0]);
+				double y = Double.parseDouble(vec[1]);
+				double z = Double.parseDouble(vec[2]);
+				CAMERAMAN_OFFSET.put(BlockFace.valueOf(key), new Vector(x, y, z));
+			} catch (NumberFormatException e) {
+				CamHead.LOGGER.warning("camera.cameramanOffset." + key + " is not a vector");
+				e.getStackTrace();
+			}
+		}
+		SEAT_OFFSET.clear();
+		for (String key : config.getConfigurationSection("camera.seatOffset.").getKeys(false)) {
+			String[] vec = config.getString("camera.seatOffset." + key).split(",");
+			if (vec.length != 3) {
+				CamHead.LOGGER.warning("camera.seatOffset." + key + " is not a vector (3 numbers separated by commas)");
+				continue;
+			}
+			try {
+				double x = Double.parseDouble(vec[0]);
+				double y = Double.parseDouble(vec[1]);
+				double z = Double.parseDouble(vec[2]);
+				SEAT_OFFSET.put(BlockFace.valueOf(key), new Vector(x, y, z));
+			} catch (NumberFormatException e) {
+				CamHead.LOGGER.warning("camera.seatOffset." + key + " is not a vector");
+				e.getStackTrace();
+			}
+		}
+	}
+
+	public Vector getCameramanOffset() {
+		return CAMERAMAN_OFFSET.getOrDefault(supportDirection, new Vector(0, 0, 0));
+	}
+
+	public Vector getSeatOffset() {
+		return SEAT_OFFSET.getOrDefault(supportDirection, new Vector(0, 0, 0));
 	}
 }

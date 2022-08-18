@@ -5,6 +5,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.EulerAngle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -118,7 +119,9 @@ public class CameraAnimator {
 
 		private void setAngle(float angle) {
 			ArmorStand cameraman = camera.getCameraman();
-			cameraman.setRotation(angle, cameraman.getLocation().getPitch());
+			EulerAngle head = cameraman.getHeadPose();
+			head = head.setY(Math.toRadians(angle));
+			cameraman.setHeadPose(head);
 		}
 	}
 }
