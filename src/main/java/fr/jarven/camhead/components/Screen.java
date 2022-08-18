@@ -129,16 +129,20 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 
 	public void replace() {
 		Block block = location.getBlock();
+		Material supportType;
 		switch (supportDirection) {
 			case DOWN:
-				block.setType(MATERIAL_DOWN_SUPPORT);
+				supportType = MATERIAL_DOWN_SUPPORT;
 				break;
 			case UP:
-				block.setType(MATERIAL_UP_SUPPORT);
+				supportType = MATERIAL_UP_SUPPORT;
 				break;
 			default:
-				block.setType(MATERIAL_WALL_SUPPORT);
+				supportType = MATERIAL_WALL_SUPPORT;
 				break;
+		}
+		if (block.getType() != supportType) {
+			block.setType(supportType);
 		}
 		if (block.getBlockData() instanceof Directional) {
 			Directional data = (Directional) block.getBlockData();

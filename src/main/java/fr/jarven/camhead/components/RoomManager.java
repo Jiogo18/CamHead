@@ -3,6 +3,8 @@ package fr.jarven.camhead.components;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -12,12 +14,12 @@ import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.SaveTask;
 
 public class RoomManager {
-	public final static String NAME_REGEX = "^[a-zA-Z\\d_\\-]+$";
+	public static final String NAME_REGEX = "^[a-zA-Z\\d_\\-]+$";
 	private SortedSet<Room> rooms;
 	private final File roomFolder;
 
 	public RoomManager() {
-		this.rooms = new TreeSet<Room>();
+		this.rooms = new TreeSet<>();
 		this.roomFolder = new File(CamHead.getInstance().getDataFolder(), "rooms");
 	}
 
@@ -63,7 +65,11 @@ public class RoomManager {
 			room.removeInternal();
 			File file = room.getFile();
 			if (file.exists()) {
-				file.delete();
+				try {
+					Files.delete(file.toPath());
+				} catch (IOException e) {
+					CamHead.LOGGER.warning("Could not delete file " + file.getName());
+				}
 			}
 			return true;
 		} else {
@@ -93,7 +99,9 @@ public class RoomManager {
 	}
 
 	public void reload(Room room) {
-		assert room != null && rooms.contains(room);
+		if (room == null || !rooms.contains(room)) {
+			throw new IllegalArgumentException("Room must be non null and in the room manager");
+		}
 		if (!room.getFile().exists()) {
 			room.save();
 		}

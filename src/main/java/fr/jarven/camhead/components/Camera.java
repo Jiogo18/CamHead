@@ -165,7 +165,9 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public void replaceSupport() {
 		Block block = location.getBlock();
-		block.setType(MATERIAL_SUPPORT);
+		if (block.getType() != MATERIAL_SUPPORT) {
+			block.setType(MATERIAL_SUPPORT);
+		}
 		if (block.getBlockData() instanceof Directional) {
 			Directional data = (Directional) block.getBlockData();
 			data.setFacing(supportDirection.getOppositeFace());
