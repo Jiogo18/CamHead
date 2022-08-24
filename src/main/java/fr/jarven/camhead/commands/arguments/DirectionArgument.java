@@ -21,8 +21,11 @@ public class DirectionArgument extends CustomArgument<BlockFace, String> {
 			throw Messages.createCustomArgumentException(info, Messages.Resources.DIRECTION_INVALID.replace("%input%", info.input()));
 		});
 		replaceSuggestions((info, builder) -> {
+			String current = info.currentArg().toUpperCase();
 			for (BlockFace direction : directions) {
-				builder.suggest(direction.name());
+				if (direction.name().startsWith(current)) {
+					builder.suggest(direction.name());
+				}
 			}
 			return builder.buildFuture();
 		});

@@ -9,28 +9,30 @@ import org.bukkit.block.data.Directional;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.CameraAnimator;
 
 public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationSerializable {
-	public static Material MATERIAL_SUPPORT = Material.END_ROD;
-	public static Material MATERIAL_CAMERA = Material.END_ROD;
-	public static int MATERIAL_CAMERA_CUSTOM_MODEL_DATA = 0;
-	public static Map<BlockFace, Vector> CAMERAMAN_OFFSET = new EnumMap<>(BlockFace.class);
-	public static Map<BlockFace, Vector> SEAT_OFFSET = new EnumMap<>(BlockFace.class);
+	private static boolean replaceOnReload = false;
+	public static Material MATERIAL_BLOCK = Material.END_ROD;
+	private static final SharedItem[] CAMERAMAN_ITEMS = new SharedItem[] {null, null, null, null, null, null};
+	private static final SharedItem[] SEAT_ITEMS = new SharedItem[] {null, null, null, null, null, null};
+	private static final EnumMap<BlockFace, Vector> CAMERAMAN_OFFSET = new EnumMap<>(BlockFace.class);
+	private static final EnumMap<BlockFace, Vector> SEAT_OFFSET = new EnumMap<>(BlockFace.class);
 	public static final BlockFace[] SUPPORT_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
-	public static final BlockFace[] FACING = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
+	public static final BlockFace[] ANIMATION_DIRECTIONS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
 	private Room room;
 	private final String name;
 	private Location location;
@@ -39,6 +41,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	private BlockFace animationDirection;
 	private ArmorStand cameraman = null;
 	private ArmorStand seat = null;
+	private final Set<Player> players = new HashSet<>();
 
 	protected Camera(Room room, String name, Location location) {
 		RoomManager.assertNameStandard(name);
@@ -62,7 +65,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.animationDirection = animationDirection;
 		this.cameraman = cameraman;
 		this.seat = seat;
-		// replace latter with the room
+		// replace latter when the room is set (for makeDirty)
 	}
 
 	@Override
@@ -105,7 +108,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	protected void setRoom(Room room) {
 		this.room = room;
-		replace();
+		if (replaceOnReload) replace();
 		CameraAnimator.addCamera(this);
 	}
 
@@ -165,8 +168,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public void replaceSupport() {
 		Block block = location.getBlock();
-		if (block.getType() != MATERIAL_SUPPORT) {
-			block.setType(MATERIAL_SUPPORT);
+		if (block.getType() != MATERIAL_BLOCK) {
+			block.setType(MATERIAL_BLOCK);
 		}
 		if (block.getBlockData() instanceof Directional) {
 			Directional data = (Directional) block.getBlockData();
@@ -177,6 +180,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public void replaceCameraman() {
 		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
+		cameramanLocation.setYaw(getSupportYaw());
 		if (cameraman == null || cameraman.isDead()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameraman.addScoreboardTag("camhead_cameraman");
@@ -187,14 +191,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		cameraman.setVisible(false);
 		cameraman.setInvulnerable(true);
 		cameraman.setGravity(false);
-		ItemStack cameraItem = new ItemStack(MATERIAL_CAMERA);
-		ItemMeta meta = cameraItem.getItemMeta();
-		meta.setCustomModelData(MATERIAL_CAMERA_CUSTOM_MODEL_DATA);
-		cameraItem.setItemMeta(meta);
-		cameraman.getEquipment().setHelmet(cameraItem);
+		SharedItem.createArmor(cameraman.getEquipment(), CAMERAMAN_ITEMS);
 	}
 
 	public void replaceSeat() {
+		removePlayers();
 		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
 		if (seat == null || seat.isDead()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
@@ -206,6 +207,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		seat.setVisible(false);
 		cameraman.setInvulnerable(true);
 		seat.setGravity(false);
+		SharedItem.createArmor(seat.getEquipment(), SEAT_ITEMS);
 	}
 
 	@Override
@@ -247,7 +249,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	private static BlockFace guessSupportDirection(Location location) {
 		for (BlockFace direction : SUPPORT_DIRECTIONS) {
-			if (location.getBlock().getRelative(direction).getType().isSolid()) {
+			Material material = location.getBlock().getRelative(direction).getType();
+			if (material.isSolid() && material != Material.BARRIER) {
 				return direction;
 			}
 		}
@@ -266,7 +269,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		List<BlockFace> facesFree = new ArrayList<>();
 		List<BlockFace> facesSolid = new ArrayList<>();
 		for (int i = 0; i < directions.length; i++) {
-			if (location.getBlock().getRelative(directions[i]).getType().isSolid()) {
+			Material material = location.getBlock().getRelative(directions[i]).getType();
+			if (material.isSolid() && material != Material.BARRIER) {
 				facesSolid.add(directions[i]);
 			} else {
 				facesFree.add(directions[i]);
@@ -334,54 +338,84 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		return animationDirection;
 	}
 
+	private float getSupportYaw() {
+		Vector direction = supportDirection.getDirection();
+		if (direction.getY() != 0) {
+			float animationYaw = getAnimationYaw();
+			// round to 90°
+			return Math.round(animationYaw / 90) * 90.0f;
+		}
+		return 180 - (float) Math.toDegrees(direction.angle(new Vector(0, 0, 1)));
+	}
+
+	private float getAnimationYaw() {
+		switch (animationDirection) {
+			case NORTH:
+				return 180;
+			case NORTH_EAST:
+				return 225;
+			case EAST:
+				return 270;
+			case SOUTH_EAST:
+				return 315;
+			case SOUTH:
+				return 0;
+			case SOUTH_WEST:
+				return 45;
+			case WEST:
+				return 90;
+			case NORTH_WEST:
+				return 135;
+			default:
+				throw new IllegalStateException("Unknown animation direction: " + animationDirection);
+		}
+	}
+
 	public ArmorStand getCameraSeat() {
-		if (seat == null) replace();
+		if (seat == null) replaceSeat();
 		return seat;
 	}
 
 	public ArmorStand getCameraman() {
-		if (cameraman == null) replace();
+		if (cameraman == null) replaceCameraman();
 		return cameraman;
 	}
 
+	private static void loadDirectionOffsets(EnumMap<BlockFace, Vector> directionOffsets, YamlConfiguration config, String path) {
+		directionOffsets.clear();
+		for (String key : config.getConfigurationSection(path).getKeys(false)) {
+			BlockFace face;
+			try {
+				face = BlockFace.valueOf(key);
+			} catch (IllegalArgumentException e) {
+				CamHead.LOGGER.warning("Invalid direction offset: " + key + " (at " + path + ")");
+				continue;
+			}
+
+			String[] vec = config.getString(path + "." + key).split(",");
+			if (vec.length != 3) {
+				CamHead.LOGGER.warning(path + "." + key + " is not a vector (must be 3 numbers separated by commas)");
+				continue;
+			}
+			try {
+				double x = Double.parseDouble(vec[0]);
+				double y = Double.parseDouble(vec[1]);
+				double z = Double.parseDouble(vec[2]);
+				directionOffsets.put(face, new Vector(x, y, z));
+			} catch (NumberFormatException e) {
+				CamHead.LOGGER.warning("camera.cameraman.offset." + key + " is not a vector");
+				e.getStackTrace();
+			}
+		}
+	}
+
 	public static void loadConfig(YamlConfiguration config) {
-		MATERIAL_SUPPORT = Material.valueOf(config.getString("camera.materials.support", "END_RODE"));
-		MATERIAL_CAMERA = Material.valueOf(config.getString("camera.materials.cameraItem", "END_RODE"));
-		MATERIAL_CAMERA_CUSTOM_MODEL_DATA = config.getInt("camera.materials.cameraItemCustomModelData", 0);
-		CAMERAMAN_OFFSET.clear();
-		for (String key : config.getConfigurationSection("camera.cameramanOffset").getKeys(false)) {
-			String[] vec = config.getString("camera.cameramanOffset." + key).split(",");
-			if (vec.length != 3) {
-				CamHead.LOGGER.warning("camera.cameramanOffset." + key + " is not a vector (3 numbers separated by commas)");
-				continue;
-			}
-			try {
-				double x = Double.parseDouble(vec[0]);
-				double y = Double.parseDouble(vec[1]);
-				double z = Double.parseDouble(vec[2]);
-				CAMERAMAN_OFFSET.put(BlockFace.valueOf(key), new Vector(x, y, z));
-			} catch (NumberFormatException e) {
-				CamHead.LOGGER.warning("camera.cameramanOffset." + key + " is not a vector");
-				e.getStackTrace();
-			}
-		}
-		SEAT_OFFSET.clear();
-		for (String key : config.getConfigurationSection("camera.seatOffset.").getKeys(false)) {
-			String[] vec = config.getString("camera.seatOffset." + key).split(",");
-			if (vec.length != 3) {
-				CamHead.LOGGER.warning("camera.seatOffset." + key + " is not a vector (3 numbers separated by commas)");
-				continue;
-			}
-			try {
-				double x = Double.parseDouble(vec[0]);
-				double y = Double.parseDouble(vec[1]);
-				double z = Double.parseDouble(vec[2]);
-				SEAT_OFFSET.put(BlockFace.valueOf(key), new Vector(x, y, z));
-			} catch (NumberFormatException e) {
-				CamHead.LOGGER.warning("camera.seatOffset." + key + " is not a vector");
-				e.getStackTrace();
-			}
-		}
+		MATERIAL_BLOCK = Material.valueOf(config.getString("camera.block.material", "BARRIER"));
+		SharedItem.loadSharedItems(CAMERAMAN_ITEMS, config, "camera.cameraman.inventory");
+		SharedItem.loadSharedItems(SEAT_ITEMS, config, "camera.seat.inventory");
+		loadDirectionOffsets(CAMERAMAN_OFFSET, config, "camera.cameraman.offset");
+		loadDirectionOffsets(SEAT_OFFSET, config, "camera.seat.offset");
+		replaceOnReload = config.getBoolean("replaceOnReload", false);
 	}
 
 	public Vector getCameramanOffset() {
@@ -390,5 +424,26 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public Vector getSeatOffset() {
 		return SEAT_OFFSET.getOrDefault(supportDirection, new Vector(0, 0, 0));
+	}
+
+	public void addPlayer(Player player) {
+		this.players.add(player);
+		this.cameraman.addPassenger(player);
+	}
+
+	public void removePlayer(Player player) {
+		this.players.remove(player);
+		this.cameraman.removePassenger(player);
+	}
+
+	public Set<Player> getPlayers() {
+		return this.players;
+	}
+
+	public void removePlayers() {
+		Set<Player> playersInside = new HashSet<>(this.players);
+		for (Player player : playersInside) {
+			CamHead.spectatorManager.leave(player);
+		}
 	}
 }

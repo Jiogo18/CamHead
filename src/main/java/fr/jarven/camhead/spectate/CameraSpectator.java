@@ -1,10 +1,12 @@
 package fr.jarven.camhead.spectate;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 
@@ -29,6 +31,15 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		return player.getUniqueId().compareTo(o.player.getUniqueId());
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof CameraSpectator && player.getUniqueId().equals(((CameraSpectator) o).player.getUniqueId());
+	}
+
+	public int hashCode() {
+		return player.getUniqueId().hashCode();
+	}
+
 	public Player getPlayer() {
 		return player;
 	}
@@ -42,13 +53,11 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	}
 
 	public void previousCamera() {
-		camera = getRoom().getPreviousCamera(camera);
-		enter();
+		enter(getRoom().getPreviousCamera(camera));
 	}
 
 	public void nextCamera() {
-		camera = getRoom().getNextCamera(camera);
-		enter();
+		enter(getRoom().getNextCamera(camera));
 	}
 
 	public Location getLocation(Location playerYawPitch) {
@@ -64,10 +73,16 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setInvisible(true);
 		player.setCollidable(false);
 		player.setCanPickupItems(false);
+		player.setInvulnerable(true);
+		for (Player other : Bukkit.getOnlinePlayers()) {
+			if (other.getUniqueId().equals(player.getUniqueId())) continue;
+			other.hidePlayer(CamHead.getInstance(), player);
+			// is hidden until player leaves the room or other deco/reco
+		}
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);
 		}
-		camera.getCameraSeat().addPassenger(player);
+		camera.addPlayer(player);
 		leaving = false;
 		return true;
 	}
@@ -78,7 +93,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		}
 		if (this.camera != camera) {
 			if (this.camera != null) {
-				this.camera.getCameraSeat().removePassenger(player);
+				this.camera.removePlayer(player);
 			}
 			this.camera = camera;
 			return enter();
@@ -89,7 +104,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	protected boolean leave() {
 		if (leaving) return false;
 		leaving = true;
-		camera.getCameraSeat().removePassenger(player);
+		camera.removePlayer(player);
 		stateBeforeEnter.restore();
 		player.setSneaking(false);
 		return true;
@@ -110,6 +125,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		private final boolean hadGravity;
 		private final boolean wasCollidable;
 		private final boolean wasCanPickupItems;
+		private final boolean wasInvulnerable;
 
 		private PlayerState(Player player) {
 			this.player = player;
@@ -122,6 +138,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.hadGravity = player.hasGravity();
 			this.wasCollidable = player.isCollidable();
 			this.wasCanPickupItems = player.getCanPickupItems();
+			this.wasInvulnerable = player.isInvulnerable();
 		}
 
 		private void restore() {
@@ -134,6 +151,11 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.setGravity(hadGravity);
 			player.setCollidable(wasCollidable);
 			player.setCanPickupItems(wasCanPickupItems);
+			player.setInvulnerable(wasInvulnerable);
+			for (Player other : Bukkit.getOnlinePlayers()) {
+				if (other.getUniqueId().equals(player.getUniqueId())) continue;
+				other.showPlayer(CamHead.getInstance(), player);
+			}
 		}
 	}
 }

@@ -2,13 +2,16 @@ package fr.jarven.camhead.listeners;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +32,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 public class PlayerInteractBlocks implements Listener {
 	private boolean canBePluginBlock(Block block) {
 		return block != null
-			&& (block.getType().equals(Camera.MATERIAL_SUPPORT)
+			&& (block.getType().equals(Camera.MATERIAL_BLOCK)
 				|| block.getType().equals(Screen.MATERIAL_DOWN_SUPPORT)
 				|| block.getType().equals(Screen.MATERIAL_UP_SUPPORT)
 				|| block.getType().equals(Screen.MATERIAL_WALL_SUPPORT));
@@ -74,9 +77,10 @@ public class PlayerInteractBlocks implements Listener {
 	@EventHandler
 	public void onPlayerInteractBlock(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
+		boolean isMainHand = event.getHand() == EquipmentSlot.HAND;
 		if (CamHead.spectatorManager.isSpectator(player)) {
 			event.setCancelled(true);
-		} else if (canBePluginBlock(event.getClickedBlock())) {
+		} else if (isMainHand && canBePluginBlock(event.getClickedBlock())) {
 			ComponentBase component = getPluginComponent(event.getClickedBlock());
 			if (component == null) return;
 			switch (event.getAction()) {
@@ -143,8 +147,21 @@ public class PlayerInteractBlocks implements Listener {
 		} else {
 			ComponentBase component = getPluginComponent(event.getRightClicked());
 			if (component == null) return;
-			usePluginBlock(player, component);
 			event.setCancelled(true);
+			onPlayerRightClickComponent(player, component);
+		}
+	}
+
+	@EventHandler
+	private void onPlayerInteractArmorStand(PlayerInteractAtEntityEvent event) {
+		Player player = event.getPlayer();
+		if (CamHead.spectatorManager.isSpectator(player)) {
+			event.setCancelled(true);
+		} else if (event.getRightClicked().getType() == EntityType.ARMOR_STAND) {
+			ComponentBase component = getPluginComponent((ArmorStand) event.getRightClicked());
+			if (component == null) return;
+			event.setCancelled(true);
+			onPlayerRightClickComponent(player, component);
 		}
 	}
 
@@ -189,22 +206,43 @@ public class PlayerInteractBlocks implements Listener {
 	}
 
 	private void infoPluginBlock(Player player, ComponentBase component) {
+		ComponentBuilder builder;
+		Messages.Resources removeButton;
+		Messages.Resources removeButtonHover;
+		String removeCommand;
 		if (component instanceof Camera) {
 			Camera camera = (Camera) component;
-			Messages.Resources.INFO_CAMERA
-				.params(camera, camera.getLocation(), camera.getRoom())
-				.replace("%supportDirection%", camera.getSupportDirection().name())
-				.replace("%animationDirection%", camera.getAnimationDirection().name())
-				.send(player);
+			builder = new ComponentBuilder(Messages.Resources.INFO_CAMERA
+							       .params(camera, camera.getLocation(), camera.getRoom())
+							       .replace("%supportDirection%", camera.getSupportDirection().name())
+							       .replace("%animationDirection%", camera.getAnimationDirection().name())
+							       .build(player));
+			removeCommand = "/camhead remove camera " + ((Camera) component).getRoom().getName() + " " + component.getName();
+			removeButton = Messages.Resources.REMOVE_CAMERA_BREAK_BUTTON;
+			removeButtonHover = Messages.Resources.REMOVE_CAMERA_BREAK_HOVER;
 		} else if (component instanceof Screen) {
 			Screen screen = (Screen) component;
-			Messages.Resources.INFO_SCREEN
-				.params(screen, screen.getLocation(), screen.getRoom())
-				.replace("%supportDirection%", screen.getSupportDirection().name())
-				.replace("%facingDirection%", screen.getFacingDirection().name())
-				.send(player);
+			builder = new ComponentBuilder(Messages.Resources.INFO_SCREEN
+							       .params(screen, screen.getLocation(), screen.getRoom())
+							       .replace("%supportDirection%", screen.getSupportDirection().name())
+							       .replace("%facingDirection%", screen.getFacingDirection().name())
+							       .build(player));
+			removeCommand = "/camhead remove screen " + ((Screen) component).getRoom().getName() + " " + component.getName();
+			removeButton = Messages.Resources.REMOVE_SCREEN_BREAK_BUTTON;
+			removeButtonHover = Messages.Resources.REMOVE_SCREEN_BREAK_HOVER;
 		} else {
 			throw new IllegalStateException("Unknown component " + component);
 		}
+
+		builder
+			.append("\n")
+			.append(
+				new ComponentBuilder("  ")
+					.color(ChatColor.YELLOW)
+					.append(removeButton.getBuilder().build(player))
+					.event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, removeCommand))
+					.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(removeButtonHover.getBuilder().build(player))))
+					.create());
+		player.spigot().sendMessage(builder.create());
 	}
 }

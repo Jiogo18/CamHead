@@ -16,6 +16,7 @@ public class CameraAnimator {
 	private static BukkitTask task;
 	private static final Map<Camera, AnimationStep> camerasAngle = new HashMap<>();
 	public static double cameraSpeed = 5;
+	public static boolean animateOnlyIfPlayers = true;
 
 	private CameraAnimator() {}
 
@@ -30,6 +31,7 @@ public class CameraAnimator {
 
 	public static void loadConfig(YamlConfiguration config) {
 		CameraAnimator.cameraSpeed = config.getDouble("cameraSpeed", 5);
+		CameraAnimator.animateOnlyIfPlayers = config.getBoolean("animateOnlyIfPlayers", true);
 	}
 
 	public static void addCamera(Camera camera) {
@@ -56,6 +58,7 @@ public class CameraAnimator {
 		private float angleMax;
 		private float angle;
 		private float direction;
+		private float cameramanYaw;
 
 		private AnimationStep(Camera camera) {
 			this.angle = 0;
@@ -103,9 +106,11 @@ public class CameraAnimator {
 			}
 			angle = (angleMin + angleMax) / 2;
 			direction = 1;
+			cameramanYaw = camera.getCameraman().getLocation().getYaw();
 		}
 
 		private void animate() {
+			if (animateOnlyIfPlayers && camera.getPlayers().isEmpty()) return;
 			angle += direction * cameraSpeed;
 			if (angle > angleMax) {
 				angle = angleMax;
@@ -120,7 +125,7 @@ public class CameraAnimator {
 		private void setAngle(float angle) {
 			ArmorStand cameraman = camera.getCameraman();
 			EulerAngle head = cameraman.getHeadPose();
-			head = head.setY(Math.toRadians(angle));
+			head = head.setY(Math.toRadians(angle - cameramanYaw));
 			cameraman.setHeadPose(head);
 		}
 	}

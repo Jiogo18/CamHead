@@ -3,6 +3,8 @@
 
 # Speed of the camera (degrees/tick)
 cameraSpeed: 1
+# Animates the camera only when a player is in the camera
+animateOnlyIfPlayers: true
 # Delay in seconds before saving the room
 saveDelay: 10
 # Default language
@@ -18,36 +20,61 @@ allowSlotToChange: true
 allowEnterByScreen: true
 # Allow the player to enter the camera via the camera
 allowEnterByCamera: false
+# Admins can break the camera by hitting the camera (with confirmation)
+adminClickToRemove: true
+# Replace the components when the server starts
+replaceOnReload: false
 
 camera:
-  materials:
-    support: END_ROD
-    cameraItem: END_ROD
-    cameraItemCustomModelData: 0
-  # Cameraman offset depending on the support direction
-  # Offset 0,0,0 is the center of the support
-  cameramanOffset:
-    NORTH: 0,0.3,0.45
-    SOUTH: 0,0.3,-0.45
-    EAST: -0.45,0.3,0
-    WEST: 0.45,0.3,0
-    DOWN: 0,0.5,0
-    UP: 0,-0.2,0
-  # Seat offset (for the player)
-  seatOffset:
-    NORTH: 0,-0.1,0.5
-    SOUTH: 0,-0.1,-0.5
-    EAST: -0.5,-0.1,0
-    WEST: 0.5,-0.1,0
-    DOWN: 0,0.6,0
-    UP: 0,-0.3,0
+  block:
+    material: END_ROD
+  
+  # The cameraman is an armor stand holding the camera
+  cameraman:
+    inventory:
+      helmet: # Rotate the camera
+        material: END_ROD
+        custom_model_data: 0
+      chestplate:
+      leggings:
+      boots:
+      mainHand:
+      offHand:
+    # Cameraman offset depending on the support direction
+    # Offset 0,0,0 is the center of the support
+    offset:
+      NORTH: 0,0.3,0.45
+      SOUTH: 0,0.3,-0.45
+      EAST: -0.45,0.3,0
+      WEST: 0.45,0.3,0
+      DOWN: 0,0.5,0
+      UP: 0,-0.2,0
+
+  # The seat is an armor stand were the player sits
+  seat:
+    inventory:
+      helmet:
+      chestplate:
+      leggings:
+      boots:
+      mainHand:
+      offHand:
+    # Seat offset (for the player)
+    offset:
+      NORTH: 0,-0.1,0.5
+      SOUTH: 0,-0.1,-0.5
+      EAST: -0.5,-0.1,0
+      WEST: 0.5,-0.1,0
+      DOWN: 0,0.6,0
+      UP: 0,-0.3,0
 
   # The gamemode to use when the player is in the camera
   # Survival: The player can break blocks. (not recommanded)
-  # Adventure: The player can take damage and his items are visible. (recommanded)
+  # Adventure: The player is hidden and is invulnerable. (recommanded)
   # Creative: The player have access to the creative inventory. (not recommanded)
   # Spectator: The player will see the invisible armor stand and can't use the allowSlotToChange. (recommanded)
-  gamemode: SPECTATOR
+  #   There is also a bug in Spectator where hitting the sneaking key too fast is not detected.
+  gamemode: ADVENTURE
 
 
 screen:

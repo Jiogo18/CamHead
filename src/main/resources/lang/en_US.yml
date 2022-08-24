@@ -1,8 +1,8 @@
-# Edited by Jarven on 2022-07-31.
+# Edited by Jarven on 2022-08-24.
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version: 31/07/2022
+version: 2022-08-24
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.
@@ -24,7 +24,7 @@ camhead.direction.invalid: Direction %direction% invalid.
 
 camhead.date_time: dd/MM/yyyy HH:mm:ss
 
-camhead.info.room: |-
+camhead.info.room.main: |-
   Room %room%:
   - Location: in %world% at %x% %y% %z%
   - Cameras: %cameraCount%
@@ -89,10 +89,12 @@ camhead.remove.camera.failed: Failed to remove camera %camera% from room %room%.
 camhead.remove.camera.success: Camera %camera% removed from room %room%.
 camhead.remove.screen.failed: Failed to remove screen %screen% from room %room%.
 camhead.remove.screen.success: Screen %screen% removed from room %room%.
+camhead.remove.camera.break.button: '[Remove camera]'
 camhead.remove.camera.break.nopermission: You don't have permission to break this camera.
 camhead.remove.camera.break.confirm: 'Are you sure you want to remove this camera? '
 camhead.remove.camera.break.yes: '[Yes]'
 camhead.remove.camera.break.hover: See the command
+camhead.remove.screen.break.button: '[Remove screen]'
 camhead.remove.screen.break.nopermission: You don't have permission to break this screen.
 camhead.remove.screen.break.confirm: 'Are you sure you want to remove this screen? '
 camhead.remove.screen.break.yes: '[Yes]'

@@ -23,7 +23,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "31/07/2022";
+	private static final String LANGUAGE_VERSION = "2022-08-24";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -46,7 +46,7 @@ public class Messages {
 
 		DATE_TIME("camhead.date_time"),
 
-		INFO_ROOM("camhead.info.room"),
+		INFO_ROOM("camhead.info.room.main"),
 		INFO_ROOM_SAVE_TIME("camhead.info.room.savetime"),
 		INFO_ROOM_SAVE_NEVER("camhead.info.room.savetime.never"),
 		INFO_ROOM_SAVING("camhead.info.room.saving"),
@@ -84,10 +84,12 @@ public class Messages {
 		REMOVE_CAMERA_SUCCESS("camhead.remove.camera.success"),
 		REMOVE_SCREEN_FAILED("camhead.remove.screen.failed"),
 		REMOVE_SCREEN_SUCCESS("camhead.remove.screen.success"),
+		REMOVE_CAMERA_BREAK_BUTTON("camhead.remove.camera.break.button"),
 		REMOVE_CAMERA_BREAK_PERMISSION("camhead.remove.camera.break.nopermission"),
 		REMOVE_CAMERA_BREAK_CONFIRM("camhead.remove.camera.break.confirm"),
 		REMOVE_CAMERA_BREAK_YES("camhead.remove.camera.break.yes"),
 		REMOVE_CAMERA_BREAK_HOVER("camhead.remove.camera.break.hover"),
+		REMOVE_SCREEN_BREAK_BUTTON("camhead.remove.screen.break.button"),
 		REMOVE_SCREEN_BREAK_PERMISSION("camhead.remove.screen.break.nopermission"),
 		REMOVE_SCREEN_BREAK_CONFIRM("camhead.remove.screen.break.confirm"),
 		REMOVE_SCREEN_BREAK_YES("camhead.remove.screen.break.yes"),

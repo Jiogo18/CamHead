@@ -10,6 +10,7 @@ import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.commands.arguments.DirectionArgument;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.task.CameraAnimator;
 import fr.jarven.camhead.utils.Messages;
 
 public class CommandCamHeadRotate extends SubCommandBuider {
@@ -19,7 +20,7 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 			.then(generateCameraSelector(cameraArgument -> {
 				return cameraArgument
 					.then(new DirectionArgument("support", Camera.SUPPORT_DIRECTIONS)
-							.then(new DirectionArgument("facing", Camera.FACING)
+							.then(new DirectionArgument("facing", Camera.ANIMATION_DIRECTIONS)
 									.executes(this::rotateCameraParams)))
 					.executesNative((proxy, args) -> { return rotateCameraYaw(proxy, (Camera) args[1]); });
 			}))
@@ -38,6 +39,7 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 		BlockFace facing = (BlockFace) args[3];
 		camera.setSupportDirection(support);
 		camera.setAnimationFace(facing);
+		CameraAnimator.addCamera(camera); // update
 		Messages.Resources.ROTATE_CAMERA_SUCCESS.params(camera).send(sender);
 		return 1;
 	}
@@ -47,6 +49,7 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 		BlockFace facing = getHorizontal45Facing(proxy.getLocation()).getOppositeFace();
 		camera.setSupportDirection(support);
 		camera.setAnimationFace(facing);
+		CameraAnimator.addCamera(camera); // update
 		Messages.Resources.ROTATE_CAMERA_DETAILED
 			.params(camera)
 			.replace("%support%", camera.getSupportDirection().name())

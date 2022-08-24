@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2022-07-31.
+# Modifié par Jarven le 2022-08-24.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version: 31/07/2022
+version: 2022-08-24
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -24,7 +24,7 @@ camhead.direction.invalid: Direction %direction% invalide.
 
 camhead.date_time: dd/MM/yyyy HH:mm:ss
 
-camhead.info.room: |-
+camhead.info.room.main: |-
   Pièce %room% :
   - Localisation : dans %world% à %x% %y% %z%
   - Caméras : %cameraCount%
@@ -89,10 +89,12 @@ camhead.remove.camera.failed: Échec de la suppression de la caméra %camera% de
 camhead.remove.camera.success: Caméra %camera% supprimée de la pièce %room%.
 camhead.remove.screen.failed: Échec de la suppression de l'écran %screen% de la pièce %room%.
 camhead.remove.screen.success: Écran %screen% supprimé de la pièce %room%.
+camhead.remove.camera.break.button: '[Supprimer la caméra]'
 camhead.remove.camera.break.nopermission: 'Vous n''avez pas la permission de détruire cette caméra.'
 camhead.remove.camera.break.confirm: 'Êtes-vous sûr de vouloir détruire cette caméra ? '
 camhead.remove.camera.break.yes: '[Oui]'
 camhead.remove.camera.break.hover: Voir la commande
+camhead.remove.screen.break.button: '[Supprimer l''écran]'
 camhead.remove.screen.break.nopermission: 'Vous n''avez pas la permission de détruire cet écran.'
 camhead.remove.screen.break.confirm: 'Êtes-vous sûr de vouloir détruire cet écran ? '
 camhead.remove.screen.break.yes: '[Oui]'

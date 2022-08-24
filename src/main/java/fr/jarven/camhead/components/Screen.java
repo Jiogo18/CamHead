@@ -18,6 +18,7 @@ import java.util.Map;
 import fr.jarven.camhead.lib.skullcreator.SkullCreator;
 
 public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationSerializable {
+	private static boolean replaceOnReload = false;
 	public static Material MATERIAL_DOWN_SUPPORT = Material.PLAYER_HEAD;
 	public static Material MATERIAL_WALL_SUPPORT = Material.PLAYER_WALL_HEAD;
 	public static Material MATERIAL_UP_SUPPORT = Material.PLAYER_HEAD;
@@ -47,6 +48,7 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 		this.location = location.getBlock().getLocation();
 		this.supportDirection = supportDirection;
 		this.facingDirection = facingDirection;
+		// replace later when room is set (for makeDirty)
 	}
 
 	@Override
@@ -86,7 +88,7 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 
 	protected void setRoom(Room room) {
 		this.room = room;
-		replace();
+		if (replaceOnReload) replace();
 	}
 
 	void makeDirty() {
@@ -249,5 +251,6 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 		MATERIAL_UP_SUPPORT = Material.getMaterial(config.getString("screen.materials.upSupport", "PLAYER_WALL_HEAD"));
 		MATERIAL_WALL_SUPPORT = Material.getMaterial(config.getString("screen.materials.wallSupport", "PLAYER_HEAD"));
 		headTextureBase64 = config.getString("screen.materials.headTextureBase64", null);
+		replaceOnReload = config.getBoolean("replaceOnReload", false);
 	}
 }

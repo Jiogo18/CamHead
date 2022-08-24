@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
@@ -21,6 +22,7 @@ public class SpectatorManager {
 	private boolean allowSlotToChange = true;
 	private boolean allowEnterByScreen = true;
 	private boolean allowEnterByCamera = false;
+	private boolean adminClickToRemove = true;
 	private final Random random = new Random();
 
 	public SpectatorManager() {
@@ -46,8 +48,8 @@ public class SpectatorManager {
 		} else {
 			spectator = new CameraSpectator(player, camera);
 			spectators.put(player.getUniqueId(), spectator);
+			spectator.enter();
 		}
-		spectator.enter();
 		return true;
 	}
 
@@ -90,7 +92,15 @@ public class SpectatorManager {
 		allowSlotToChange = config.getBoolean("allowSlotToChange", true);
 		allowEnterByScreen = config.getBoolean("allowEnterByScreen", true);
 		allowEnterByCamera = config.getBoolean("allowEnterByCamera", false);
+		adminClickToRemove = config.getBoolean("adminClickToRemove", true);
 		CameraSpectator.GAMEMODE = GameMode.valueOf(config.getString("camera.gamemode", "SPECTATOR"));
+	}
+
+	public void onPlayerConnect(Player player) {
+		// Hide spectators from the player
+		for (CameraSpectator spectator : this.spectators.values()) {
+			player.hidePlayer(CamHead.getInstance(), spectator.getPlayer());
+		}
 	}
 
 	public boolean isAllowSneakToLeave() {
@@ -111,5 +121,9 @@ public class SpectatorManager {
 
 	public boolean isAllowEnterByCamera() {
 		return allowEnterByCamera;
+	}
+
+	public boolean isAdminClickToRemove() {
+		return adminClickToRemove;
 	}
 }

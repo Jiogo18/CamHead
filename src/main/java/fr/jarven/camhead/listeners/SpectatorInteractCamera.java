@@ -9,10 +9,12 @@ import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.spectate.CameraSpectator;
@@ -40,6 +42,22 @@ public class SpectatorInteractCamera implements Listener {
 		if (!event.isSneaking()) return; // unsneak
 		if (CamHead.spectatorManager.isAllowSneakToLeave()) {
 			leaveIfInCamera(event.getPlayer());
+		}
+	}
+
+	/**
+	 * Dismount => Leave
+	 */
+	@EventHandler
+	public void onDismount(VehicleExitEvent event) {
+		if (event.isCancelled()) return;
+		if (!(event.getExited() instanceof Player)) return;
+		Player player = (Player) event.getExited();
+		if (!isInCamera(player)) return;
+		if (CamHead.spectatorManager.isAllowSneakToLeave()) {
+			leaveIfInCamera(player);
+		} else {
+			event.setCancelled(true);
 		}
 	}
 
@@ -102,8 +120,7 @@ public class SpectatorInteractCamera implements Listener {
 		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getPlayer());
 		if (spectator == null || spectator.isLeaving()) return;
 		if (spectator.getCamera().isAtTpLocation(spectator.getPlayer().getLocation())) return;
-		event.setCancelled(true);
-		event.getPlayer().setFlySpeed(0);
+		Bukkit.getScheduler().runTaskLater(CamHead.getInstance(), () -> spectator.enter(), 1L); // cancel and tp back
 	}
 
 	/**
@@ -128,5 +145,13 @@ public class SpectatorInteractCamera implements Listener {
 		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getPlayer());
 		if (spectator == null || spectator.isLeaving()) return;
 		event.setCancelled(true);
+	}
+
+	/**
+	 * Reconnect => hide spectators from player
+	 */
+	@EventHandler
+	public void onConnect(PlayerJoinEvent event) {
+		CamHead.spectatorManager.onPlayerConnect(event.getPlayer());
 	}
 }
