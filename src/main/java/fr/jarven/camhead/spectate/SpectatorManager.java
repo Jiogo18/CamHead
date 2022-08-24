@@ -99,6 +99,7 @@ public class SpectatorManager {
 	public void onPlayerConnect(Player player) {
 		// Hide spectators from the player
 		for (CameraSpectator spectator : this.spectators.values()) {
+			if (player.getUniqueId().equals(spectator.getPlayer().getUniqueId())) continue;
 			player.hidePlayer(CamHead.getInstance(), spectator.getPlayer());
 		}
 	}

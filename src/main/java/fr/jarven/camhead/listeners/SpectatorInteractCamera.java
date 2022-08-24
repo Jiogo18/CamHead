@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
@@ -80,11 +81,29 @@ public class SpectatorInteractCamera implements Listener {
 	}
 
 	/**
-	 * On death => Leave
+	 * On death => Deny
 	 */
 	@EventHandler
 	public void onDeath(PlayerDeathEvent event) {
-		leaveIfInCamera(event.getEntity());
+		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getEntity());
+		if (spectator == null || spectator.isLeaving()) return;
+		event.setDeathMessage(null);
+		event.setDroppedExp(0);
+		event.setKeepInventory(true);
+		event.setKeepLevel(true);
+		Bukkit.getScheduler().runTaskLater(CamHead.getInstance(), () -> spectator.enter(), 1L); // cancel and tp back
+	}
+
+	/**
+	 * Take damage => Deny
+	 */
+	@EventHandler
+	public void onDamage(EntityDamageEvent event) {
+		if (event.isCancelled()) return;
+		if (!(event.getEntity() instanceof Player)) return;
+		Player player = (Player) event.getEntity();
+		if (!isInCamera(player)) return;
+		event.setCancelled(true);
 	}
 
 	/**
