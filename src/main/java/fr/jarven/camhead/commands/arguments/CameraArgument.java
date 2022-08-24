@@ -14,11 +14,14 @@ public class CameraArgument extends CustomArgument<Camera, String> {
 	}
 
 	private static ArgumentSuggestions cameraSuggestions = (info, builder) -> {
+		String current = info.currentArg().toUpperCase();
 		// List of camera names
 		Room room = info.previousArgs().length > 0 ? (Room) info.previousArgs()[info.previousArgs().length - 1] : null;
 		if (room != null) {
 			for (Camera camera : room.getCameras()) {
-				builder.suggest(camera.getName());
+				if (camera.getName().toLowerCase().startsWith(current)) {
+					builder.suggest(camera.getName());
+				}
 			}
 		}
 		return builder.buildFuture();
