@@ -2,7 +2,7 @@
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version: 2022-08-24
+version.revision: "2022-08-24"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.

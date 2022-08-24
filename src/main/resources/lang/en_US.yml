@@ -2,7 +2,7 @@
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version: 2022-08-24
+version.revision: "2022-08-24"
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.

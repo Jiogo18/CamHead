@@ -246,15 +246,19 @@ public class Messages {
 
 	public static void loadConfig(YamlConfiguration config) {
 		defaultLanguage = config.getString("lang", "en_US");
+		// The folder /lang to store the language files (and custom ones)
 		File folder = new File(CamHead.getInstance().getDataFolder(), "lang");
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
+		// Save if not present
 		saveLanguageFile("en_US", false);
 		saveLanguageFile("fr_FR", false);
+		// Get every files written in the /lang folder (even the files wich are not in the resources)
 		for (File file : folder.listFiles(f -> f.getName().endsWith(".yml"))) {
 			addLanguage(file);
 		}
+		// Determine the default language
 		defaultTranslations = languages.get(defaultLanguage.toLowerCase());
 		if (defaultTranslations == null) {
 			defaultTranslations = languages.get("en_US");
@@ -274,16 +278,19 @@ public class Messages {
 	private static void addLanguage(File file) {
 		String name = file.getName().replace(".yml", "");
 		YamlConfiguration lang = YamlConfiguration.loadConfiguration(file);
+		// Register the language's config
 		languages.put(name.toLowerCase(), lang);
-		String version = lang.getString("version", "");
+		String version = lang.getString("version.revision", "");
+		// If outdated
 		if (!version.equals(LANGUAGE_VERSION)) {
 			boolean versionWarning = lang.getBoolean("version.warnings");
 			boolean autoupdate = lang.getBoolean("version.autoupdate");
+			// Update it
 			if (autoupdate) {
 				if (versionWarning) {
 					CamHead.LOGGER.warning("Language file " + name + " is outdated, updating to version " + LANGUAGE_VERSION);
-					saveLanguageFile(name, true);
 				}
+				saveLanguageFile(name, true);
 			} else {
 				if (versionWarning) {
 					CamHead.LOGGER.warning("Language file " + name + " is outdated, please update or delete it");
