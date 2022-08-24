@@ -1,6 +1,5 @@
 package fr.jarven.camhead.commands.camhead;
 
-import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 
@@ -12,6 +11,7 @@ import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Screen;
 import fr.jarven.camhead.task.CameraAnimator;
 import fr.jarven.camhead.utils.Messages;
+import fr.jarven.camhead.utils.YawBlockFace;
 
 public class CommandCamHeadRotate extends SubCommandBuider {
 	@Override
@@ -45,10 +45,19 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 	}
 
 	private int rotateCameraYaw(NativeProxyCommandSender proxy, Camera camera) {
-		BlockFace support = getHorizontal90Facing(proxy.getLocation()).getOppositeFace();
-		BlockFace facing = getHorizontal45Facing(proxy.getLocation()).getOppositeFace();
+		float yaw = proxy.getLocation().getYaw();
+		float pitch = proxy.getLocation().getPitch();
+		BlockFace support;
+		if (pitch > 80)
+			support = BlockFace.DOWN;
+		else if (pitch < -80)
+			support = BlockFace.UP;
+		else
+			support = YawBlockFace.yawToHorizontal90BlockFace(yaw);
+		BlockFace animation = YawBlockFace.yawToHorizontal45BlockFace(yaw).getOppositeFace();
+
 		camera.setSupportDirection(support);
-		camera.setAnimationFace(facing);
+		camera.setAnimationFace(animation);
 		CameraAnimator.addCamera(camera); // update
 		Messages.Resources.ROTATE_CAMERA_DETAILED
 			.params(camera)
@@ -69,8 +78,17 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 	}
 
 	private int rotateScreenYaw(NativeProxyCommandSender proxy, Screen screen) {
-		BlockFace support = getHorizontal90Facing(proxy.getLocation()).getOppositeFace();
-		BlockFace facing = getHorizontal90Facing(proxy.getLocation()).getOppositeFace();
+		float yaw = proxy.getLocation().getYaw();
+		float pitch = proxy.getLocation().getPitch();
+		BlockFace support;
+		if (pitch > 80)
+			support = BlockFace.DOWN;
+		else if (pitch < -80)
+			support = BlockFace.UP;
+		else
+			support = YawBlockFace.yawToHorizontal90BlockFace(yaw);
+		BlockFace facing = YawBlockFace.yawToHorizontal90BlockFace(yaw);
+
 		switch (screen.getSupportDirection()) {
 			case DOWN:
 			case UP:
@@ -101,51 +119,5 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 			.replace("%facing%", screen.getFacingDirection().name())
 			.send(proxy);
 		return 1;
-	}
-
-	private BlockFace getHorizontal90Facing(Location direction) {
-		float pitch = direction.getYaw() % 360;
-		if (pitch < 0) {
-			pitch += 360;
-		}
-		assert pitch >= 0 && pitch < 360;
-		if (pitch < 45) {
-			return BlockFace.NORTH;
-		} else if (pitch < 135) {
-			return BlockFace.EAST;
-		} else if (pitch < 225) {
-			return BlockFace.SOUTH;
-		} else if (pitch < 315) {
-			return BlockFace.WEST;
-		} else {
-			return BlockFace.NORTH;
-		}
-	}
-
-	private BlockFace getHorizontal45Facing(Location direction) {
-		float pitch = direction.getYaw() % 360;
-		if (pitch < 0) {
-			pitch += 360;
-		}
-		assert pitch >= 0 && pitch < 360;
-		if (pitch < 22.5) { // 22.5
-			return BlockFace.NORTH_EAST;
-		} else if (pitch < 67.5) { // 22.5 + 45
-			return BlockFace.EAST;
-		} else if (pitch < 112.5) { // 22.5 + 90
-			return BlockFace.SOUTH_EAST;
-		} else if (pitch < 157.5) { // 22.5 + 135
-			return BlockFace.SOUTH;
-		} else if (pitch < 202.5) { // 22.5 + 180
-			return BlockFace.SOUTH_WEST;
-		} else if (pitch < 247.5) { // 22.5 + 225
-			return BlockFace.WEST;
-		} else if (pitch < 292.5) { // 22.5 + 270
-			return BlockFace.NORTH_WEST;
-		} else if (pitch < 337.5) { // 22.5 + 315
-			return BlockFace.NORTH;
-		} else {
-			return BlockFace.NORTH_EAST;
-		}
 	}
 }

@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.CameraAnimator;
+import fr.jarven.camhead.utils.YawBlockFace;
 
 public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationSerializable {
 	private static boolean replaceOnReload = false;
@@ -345,30 +346,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 			// round to 90°
 			return Math.round(animationYaw / 90) * 90.0f;
 		}
-		return 180 - (float) Math.toDegrees(direction.angle(new Vector(0, 0, 1)));
+		return 180 + YawBlockFace.blockFaceToYaw(supportDirection);
 	}
 
 	private float getAnimationYaw() {
-		switch (animationDirection) {
-			case NORTH:
-				return 180;
-			case NORTH_EAST:
-				return 225;
-			case EAST:
-				return 270;
-			case SOUTH_EAST:
-				return 315;
-			case SOUTH:
-				return 0;
-			case SOUTH_WEST:
-				return 45;
-			case WEST:
-				return 90;
-			case NORTH_WEST:
-				return 135;
-			default:
-				throw new IllegalStateException("Unknown animation direction: " + animationDirection);
-		}
+		return YawBlockFace.blockFaceToYaw(animationDirection);
 	}
 
 	public ArmorStand getCameraSeat() {
