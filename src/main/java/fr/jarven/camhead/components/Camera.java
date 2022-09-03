@@ -398,7 +398,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public static void loadConfig(YamlConfiguration config) {
-		MATERIAL_BLOCK = Material.valueOf(config.getString("camera.block.material", "BARRIER"));
+		MATERIAL_BLOCK = Material.valueOf(config.getString("camera.block.material", "BARRIER").toUpperCase());
+		if (MATERIAL_BLOCK == null) {
+			CamHead.LOGGER.warning("Invalid material for camera block: " + config.getString("camera.block.material"));
+			MATERIAL_BLOCK = Material.BARRIER;
+		}
 		SharedItem.loadSharedItems(CAMERAMAN_ITEMS, config, "camera.cameraman.inventory");
 		SharedItem.loadSharedItems(SEAT_ITEMS, config, "camera.seat.inventory");
 		loadDirectionOffsets(CAMERAMAN_OFFSET, config, "camera.cameraman.offset");

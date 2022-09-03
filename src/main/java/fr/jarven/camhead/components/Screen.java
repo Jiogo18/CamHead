@@ -7,6 +7,8 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.type.Wall;
+import org.bukkit.block.data.type.Wall.Height;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.lib.skullcreator.SkullCreator;
 
 public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationSerializable {
@@ -159,6 +162,26 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 			blockData.setRotation(facingDirection);
 			block.setBlockData(blockData);
 		}
+		if (block.getBlockData() instanceof Wall) {
+			Wall blockData = (Wall) block.getBlockData();
+			switch (supportDirection) {
+				case NORTH:
+					blockData.setHeight(BlockFace.NORTH, Height.LOW);
+					break;
+				case EAST:
+					blockData.setHeight(BlockFace.EAST, Height.LOW);
+					break;
+				case SOUTH:
+					blockData.setHeight(BlockFace.SOUTH, Height.LOW);
+					break;
+				case WEST:
+					blockData.setHeight(BlockFace.WEST, Height.LOW);
+					break;
+				default:
+					break;
+			}
+			block.setBlockData(blockData);
+		}
 	}
 
 	@Override
@@ -247,9 +270,21 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 	}
 
 	public static void loadConfig(YamlConfiguration config) {
-		MATERIAL_DOWN_SUPPORT = Material.getMaterial(config.getString("screen.materials.downSupport", "PLAYER_HEAD"));
-		MATERIAL_UP_SUPPORT = Material.getMaterial(config.getString("screen.materials.upSupport", "PLAYER_WALL_HEAD"));
-		MATERIAL_WALL_SUPPORT = Material.getMaterial(config.getString("screen.materials.wallSupport", "PLAYER_HEAD"));
+		MATERIAL_DOWN_SUPPORT = Material.getMaterial(config.getString("screen.materials.downSupport", "PLAYER_HEAD").toUpperCase());
+		MATERIAL_UP_SUPPORT = Material.getMaterial(config.getString("screen.materials.upSupport", "PLAYER_WALL_HEAD").toUpperCase());
+		MATERIAL_WALL_SUPPORT = Material.getMaterial(config.getString("screen.materials.wallSupport", "PLAYER_HEAD").toUpperCase());
+		if (MATERIAL_DOWN_SUPPORT == null) {
+			CamHead.LOGGER.warning("Invalid material for screen support: " + config.getString("screen.materials.downSupport"));
+			MATERIAL_DOWN_SUPPORT = Material.PLAYER_HEAD;
+		}
+		if (MATERIAL_UP_SUPPORT == null) {
+			CamHead.LOGGER.warning("Invalid material for screen support: " + config.getString("screen.materials.upSupport"));
+			MATERIAL_UP_SUPPORT = Material.PLAYER_HEAD;
+		}
+		if (MATERIAL_WALL_SUPPORT == null) {
+			CamHead.LOGGER.warning("Invalid material for screen support: " + config.getString("screen.materials.wallSupport"));
+			MATERIAL_WALL_SUPPORT = Material.PLAYER_WALL_HEAD;
+		}
 		headTextureBase64 = config.getString("screen.materials.headTextureBase64", null);
 		replaceOnReload = config.getBoolean("replaceOnReload", false);
 	}

@@ -14,7 +14,7 @@ camhead.camera.alreadyexists: La caméra %camera% existe déjà dans la pièce %
 camhead.camera.addfailed: Échec de l'ajout de la caméra %camera% à la pièce %room%.
 camhead.camera.addsuccess: Caméra %camera% ajoutée à la pièce %room%.
 
-camhead.screen.unknown: Écran %room% inconnu.
+camhead.screen.unknown: Écran %screen% inconnu.
 camhead.screen.alreadyexists: L'écran %screen% existe déjà dans la pièce %room%.
 camhead.screen.addfailed: Échec de l'ajout de l'écran %screen% à la pièce %room%.
 camhead.screen.addsuccess: Écran %screen% ajouté à la pièce %room%.
