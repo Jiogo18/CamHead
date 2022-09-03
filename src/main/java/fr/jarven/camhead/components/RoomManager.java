@@ -5,17 +5,18 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.SaveTask;
 
 public class RoomManager {
 	public static final String NAME_REGEX = "^[a-zA-Z\\d_\\-]+$";
-	private SortedSet<Room> rooms;
+	private final SortedSet<Room> rooms;
 	private final File roomFolder;
 
 	public RoomManager() {
@@ -30,6 +31,7 @@ public class RoomManager {
 	}
 
 	public void loadConfig(YamlConfiguration config) {
+		final SortedSet<Room> previousRooms = new TreeSet<>(rooms);
 		onDisable();
 		Camera.loadConfig(config);
 		Screen.loadConfig(config);
@@ -37,15 +39,25 @@ public class RoomManager {
 		if (!roomFolder.exists()) {
 			makeRoomFolderIfNeeded();
 		} else {
-			Arrays.asList(roomFolder.listFiles(file -> file.getName().endsWith(".yml"))).forEach(file -> {
-				try {
-					Room room = Room.fromConfig(file);
-					rooms.add(room);
-				} catch (Exception e) {
-					CamHead.LOGGER.warning("Room not loaded : '" + file.getName() + "'");
-					e.printStackTrace();
-				}
-			});
+			List<Room> newRooms =
+				Stream.of(roomFolder.listFiles(file -> file.getName().endsWith(".yml")))
+					.map(file -> {
+						String name = file.getName().substring(0, file.getName().length() - 4); // Remove .yml
+						try {
+							Optional<Room> previousRoom = previousRooms.stream().filter(r -> r.getName().equals(name)).findAny();
+							return Room.fromConfig(file, previousRoom);
+						} catch (Exception e) {
+							CamHead.LOGGER.warning("Room not loaded : '" + name + "'");
+							e.printStackTrace();
+							return null;
+						}
+					})
+					.filter(room -> room != null)
+					.toList();
+
+			List<Room> roomsToRemove = rooms.stream().filter(room -> !newRooms.contains(room)).toList();
+			roomsToRemove.forEach(this::removeRoomDontDeleteFile);
+			newRooms.forEach(rooms::add); // Add without dirty
 		}
 		CamHead.LOGGER.info("Loaded " + rooms.size() + " rooms");
 	}
@@ -61,8 +73,7 @@ public class RoomManager {
 	}
 
 	public boolean removeRoom(Room room) {
-		if (this.rooms.remove(room)) {
-			room.removeInternal();
+		if (removeRoomDontDeleteFile(room)) {
 			File file = room.getFile();
 			if (file.exists()) {
 				try {
@@ -71,6 +82,15 @@ public class RoomManager {
 					CamHead.LOGGER.warning("Could not delete file " + file.getName());
 				}
 			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean removeRoomDontDeleteFile(Room room) {
+		if (this.rooms.remove(room)) {
+			room.removeInternal();
 			return true;
 		} else {
 			return false;

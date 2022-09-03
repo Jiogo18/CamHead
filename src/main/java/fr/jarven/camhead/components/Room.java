@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -241,8 +242,11 @@ public class Room implements ComponentBase, Comparable<Room> {
 		Set<String> camerasName = ((MemorySection) config.get("cameras")).getKeys(false);
 		Set<String> screensName = ((MemorySection) config.get("screens")).getKeys(false);
 		// Remove cameras and screens that were removed from the config
-		previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).forEach(Camera::removeInternal);
-		previousScreens.stream().filter(s -> !screensName.contains(s.getName())).forEach(Screen::removeInternal);
+		List<Camera> previousCamerasRemoved = previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).map(c -> { c.removeInternal(); return c; }).toList();
+		List<Screen> previousScreensRemoved = previousScreens.stream().filter(s -> !screensName.contains(s.getName())).map(s -> { s.removeInternal(); return s; }).toList();
+		this.cameras.removeAll(previousCamerasRemoved);
+		this.screens.removeAll(previousScreensRemoved);
+
 		// Add cameras and screens that were added to the config
 		// Update cameras and screens that were changed in the config
 		camerasName.forEach(cameraName -> {
@@ -279,12 +283,12 @@ public class Room implements ComponentBase, Comparable<Room> {
 		makeClean();
 	}
 
-	protected static Room fromConfig(File file) {
+	protected static Room fromConfig(File file, Optional<Room> existingRoom) {
 		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 		String name = config.getString("name");
 		Location location = config.getLocation("location");
 		assert name != null && location != null;
-		Room room = new Room(name, location);
+		Room room = existingRoom.isPresent() ? existingRoom.get() : new Room(name, location);
 		room.config = config;
 		room.cameraId = config.getInt("cameraId");
 		room.screenId = config.getInt("screenId");
@@ -292,8 +296,19 @@ public class Room implements ComponentBase, Comparable<Room> {
 
 		Set<String> camerasName = config.contains("cameras") ? ((MemorySection) config.get("cameras")).getKeys(false) : Collections.emptySet();
 		Set<String> screensName = config.contains("screens") ? ((MemorySection) config.get("screens")).getKeys(false) : Collections.emptySet();
+
+		// Remove cameras and screens that were removed from the config
+		List<Camera> camerasToRemove = room.cameras.stream().filter(c -> !camerasName.contains(c.getName())).toList();
+		List<Screen> screensToRemove = room.screens.stream().filter(s -> !screensName.contains(s.getName())).toList();
+		room.cameras.removeAll(camerasToRemove);
+		room.screens.removeAll(screensToRemove);
+		camerasToRemove.forEach(Camera::removeInternal);
+		screensToRemove.forEach(Screen::removeInternal);
+
+		// Add / update cameras and screens
 		camerasName.forEach(cameraName -> {
 			try {
+				room.getCamera(cameraName).ifPresent(room.cameras::remove); // Remove without removing the block
 				Camera camera = (Camera) config.get("cameras." + cameraName, Camera.class);
 				camera.setRoom(room);
 				room.cameras.add(camera);
@@ -304,6 +319,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 		});
 		screensName.forEach(screenName -> {
 			try {
+				room.getScreen(screenName).ifPresent(room.screens::remove); // Remove without removing the block
 				Screen screen = (Screen) config.get("screens." + screenName, Screen.class);
 				screen.setRoom(room);
 				room.screens.add(screen);

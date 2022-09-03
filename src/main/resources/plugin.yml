@@ -1,6 +1,6 @@
 name: CamHead
 main: fr.jarven.camhead.CamHead
-version: 1.3
+version: 1.4
 api-version: 1.16
 author: Jarven
 depend: 

@@ -145,12 +145,12 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		location.getBlock().setType(Material.AIR);
 		if (cameraman != null && cameraman.isValid()) {
 			cameraman.remove();
-			cameraman = null;
 		}
+		cameraman = null;
 		if (seat != null && seat.isValid()) {
 			seat.remove();
-			seat = null;
 		}
+		seat = null;
 	}
 
 	public boolean isAtLocation(Location location) {
@@ -233,13 +233,19 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		location.getWorld().loadChunk(location.getChunk()); // load to get the entity
 		String cameramanUUID = (String) args.getOrDefault("cameramanUUID", null);
 		ArmorStand cameraman = null;
-		if (cameramanUUID != null) {
+		try {
 			cameraman = (ArmorStand) Bukkit.getEntity(UUID.fromString(cameramanUUID));
+		} catch (Exception e) {
+			CamHead.LOGGER.warning("Failed to load cameraman for camera " + name + " at " + location);
+			e.printStackTrace();
 		}
 		String seatUUID = (String) args.getOrDefault("seatUUID", null);
 		ArmorStand seat = null;
-		if (seatUUID != null) {
+		try {
 			seat = (ArmorStand) Bukkit.getEntity(UUID.fromString(seatUUID));
+		} catch (Exception e) {
+			CamHead.LOGGER.warning("Failed to load seat for camera " + name + " at " + location);
+			e.printStackTrace();
 		}
 		return new Camera(name, location, supportDirection, animationDirection, cameraman, seat);
 	}
