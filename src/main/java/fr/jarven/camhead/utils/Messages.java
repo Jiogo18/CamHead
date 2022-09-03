@@ -23,7 +23,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2022-08-24";
+	private static final String LANGUAGE_VERSION = "2022-09-03";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -47,7 +47,7 @@ public class Messages {
 		DATE_TIME("camhead.date_time"),
 
 		INFO_ROOM("camhead.info.room.main"),
-		INFO_ROOM_SAVE_TIME("camhead.info.room.savetime"),
+		INFO_ROOM_SAVE_TIME("camhead.info.room.savetime.datetime"),
 		INFO_ROOM_SAVE_NEVER("camhead.info.room.savetime.never"),
 		INFO_ROOM_SAVING("camhead.info.room.saving"),
 		INFO_ROOM_NOT_SAVING("camhead.info.room.notsaving"),
@@ -278,8 +278,6 @@ public class Messages {
 	private static void addLanguage(File file) {
 		String name = file.getName().replace(".yml", "");
 		YamlConfiguration lang = YamlConfiguration.loadConfiguration(file);
-		// Register the language's config
-		languages.put(name.toLowerCase(), lang);
 		String version = lang.getString("version.revision", "");
 		// If outdated
 		if (!version.equals(LANGUAGE_VERSION)) {
@@ -291,12 +289,15 @@ public class Messages {
 					CamHead.LOGGER.warning("Language file " + name + " is outdated, updating to version " + LANGUAGE_VERSION);
 				}
 				saveLanguageFile(name, true);
+				lang = YamlConfiguration.loadConfiguration(file);
 			} else {
 				if (versionWarning) {
 					CamHead.LOGGER.warning("Language file " + name + " is outdated, please update or delete it");
 				}
 			}
 		}
+		// Register the language's config
+		languages.put(name.toLowerCase(), lang);
 	}
 
 	private static String tr(String local, String messageKey) {

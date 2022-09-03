@@ -44,6 +44,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 	public boolean removeCamera(Camera camera) {
 		if (this.cameras.remove(camera)) {
 			camera.removeInternal();
+			if (config != null) config.set("cameras." + camera.getName(), null);
 			makeDirty();
 			return true;
 		} else {
@@ -74,6 +75,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 	public boolean removeScreen(Screen screen) {
 		if (this.screens.remove(screen)) {
 			screen.removeInternal();
+			if (config != null) config.set("screens." + screen.getName(), null);
 			makeDirty();
 			return true;
 		} else {

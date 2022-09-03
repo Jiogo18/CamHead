@@ -18,12 +18,16 @@ public class SaveTask {
 	private SaveTask() {
 	}
 
-	public static void onDisable() {
+	public static void saveAllNowIfNeeded() {
 		new HashSet<Room>(rooms.keySet()).forEach(SaveTask::saveNowIfNeeded);
 	}
 
+	public static void onDisable() {
+		saveAllNowIfNeeded();
+	}
+
 	public static void saveLater(Room room) {
-		assert room != null;
+		if (room == null) return;
 		if (rooms.containsKey(room))
 			return;
 
@@ -32,11 +36,11 @@ public class SaveTask {
 			Bukkit.getScheduler().runTaskLater(CamHead.getInstance(), () -> {
 				room.save();
 				rooms.remove(room);
-			}, saveDelay * 20));
+			}, saveDelay * 20L));
 	}
 
 	public static void cancelSaveLater(Room room) {
-		assert room != null;
+		if (room == null) return;
 		if (!rooms.containsKey(room))
 			return;
 		BukkitTask task = rooms.get(room);

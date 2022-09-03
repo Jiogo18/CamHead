@@ -20,6 +20,7 @@ import fr.jarven.camhead.listeners.PlayerInteractBlocks;
 import fr.jarven.camhead.listeners.SpectatorInteractCamera;
 import fr.jarven.camhead.spectate.SpectatorManager;
 import fr.jarven.camhead.task.CameraAnimator;
+import fr.jarven.camhead.task.SaveTask;
 import fr.jarven.camhead.utils.Messages;
 
 /*
@@ -63,6 +64,7 @@ public class CamHead extends JavaPlugin {
 	}
 
 	public void loadConfig() {
+		SaveTask.saveAllNowIfNeeded();
 		saveDefaultConfig();
 		File file = new File(getDataFolder(), "config.yml");
 		if (!file.exists()) {

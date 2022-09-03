@@ -122,6 +122,7 @@ public class RoomManager {
 		if (room == null || !rooms.contains(room)) {
 			throw new IllegalArgumentException("Room must be non null and in the room manager");
 		}
+		SaveTask.saveNowIfNeeded(room);
 		if (!room.getFile().exists()) {
 			room.save();
 		}

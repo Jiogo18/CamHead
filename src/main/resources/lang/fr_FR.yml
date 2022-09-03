@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2022-08-24.
+# Modifié par Jarven le 2022-09-03.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-08-24"
+version.revision: "2022-09-03"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -31,9 +31,9 @@ camhead.info.room.main: |-
   - Écrans : %screenCount%
   - Sauvegarde : %saveTime%
   %saving%
-camhead.info.room.savetime: '%dateTime% (%timezone%)'
+camhead.info.room.savetime.datetime: '%saveTime% (%timezone%)'
 camhead.info.room.savetime.never: Jamais
-camhead.info.room.saving: '- Sauvegarde dans moins de %saveDelay% sec'
+camhead.info.room.saving: '- Sauvegarde dans moins de %saveTime% sec'
 camhead.info.room.notsaving: ''
 camhead.info.camera: |-
   Caméra %camera% :

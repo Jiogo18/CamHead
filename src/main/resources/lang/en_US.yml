@@ -1,8 +1,8 @@
-# Edited by Jarven on 2022-08-24.
+# Edited by Jarven on 2022-09-03.
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-08-24"
+version.revision: "2022-09-03"
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.
@@ -31,9 +31,9 @@ camhead.info.room.main: |-
   - Screens: %screenCount%
   - Save: %saveTime%
   %saving%
-camhead.info.room.savetime: '%dateTime% (%timezone%)'
+camhead.info.room.savetime.datetime: '%saveTime% (%timezone%)'
 camhead.info.room.savetime.never: Never
-camhead.info.room.saving: '- Saving in less than %saveDelay% sec'
+camhead.info.room.saving: '- Saving in less than %saveTime% sec'
 camhead.info.room.notsaving: ''
 camhead.info.camera: |-
   Camera %camera%:
