@@ -14,7 +14,7 @@ public class ScreenArgument extends CustomArgument<Screen, String> {
 	}
 
 	private static ArgumentSuggestions screenSuggestions = (info, builder) -> {
-		String current = info.currentArg().toUpperCase();
+		String current = info.currentArg().toLowerCase();
 		// List of screen names
 		Room room = info.previousArgs().length > 0 ? (Room) info.previousArgs()[info.previousArgs().length - 1] : null;
 		if (room != null) {

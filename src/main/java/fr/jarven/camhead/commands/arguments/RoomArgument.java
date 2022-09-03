@@ -14,7 +14,7 @@ public class RoomArgument extends CustomArgument<Room, String> {
 	}
 
 	private static ArgumentSuggestions roomSuggestions = (info, builder) -> {
-		String current = info.currentArg().toUpperCase();
+		String current = info.currentArg().toLowerCase();
 		// List of room names
 		for (Room room : CamHead.manager.getRooms()) {
 			if (room.getName().toLowerCase().startsWith(current)) {
