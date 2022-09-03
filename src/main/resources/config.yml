@@ -24,6 +24,8 @@ allowEnterByCamera: false
 adminClickToRemove: true
 # Replace the components when the server starts
 replaceOnReload: false
+# Default limit of players in a room
+defaultPlayerLimit: 4
 
 camera:
   block:

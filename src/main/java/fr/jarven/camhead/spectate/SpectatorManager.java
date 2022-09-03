@@ -37,7 +37,19 @@ public class SpectatorManager {
 		return spectators.get(player.getUniqueId());
 	}
 
+	public boolean canEnter(Player player, Camera camera) {
+		Room room = camera.getRoom();
+		CameraSpectator spectator = getSpectator(player);
+		if (spectator != null) {
+			if (spectator.getRoom().equals(room)) return true; // Can change camera
+		}
+		long playersInRoom = spectators.values().stream().filter(s -> s.getCamera().getRoom().equals(room)).count();
+		return playersInRoom < room.getPlayerLimit();
+	}
+
 	public boolean enter(Player player, Camera camera) {
+		if (!canEnter(player, camera)) return false;
+
 		CameraSpectator spectator = getSpectator(player);
 		if (spectator != null) {
 			if (spectator.getCamera() == camera) {

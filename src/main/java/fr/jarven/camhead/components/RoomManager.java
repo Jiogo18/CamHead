@@ -18,6 +18,7 @@ public class RoomManager {
 	public static final String NAME_REGEX = "^[a-zA-Z\\d_\\-]+$";
 	private final SortedSet<Room> rooms;
 	private final File roomFolder;
+	private int defaultPlayerLimit = 0;
 
 	public RoomManager() {
 		this.rooms = new TreeSet<>();
@@ -36,6 +37,7 @@ public class RoomManager {
 		Camera.loadConfig(config);
 		Screen.loadConfig(config);
 		SaveTask.loadConfig(config);
+		defaultPlayerLimit = config.getInt("defaultPlayerLimit", 4);
 		if (!roomFolder.exists()) {
 			makeRoomFolderIfNeeded();
 		} else {
@@ -132,5 +134,9 @@ public class RoomManager {
 	public void onDisable() {
 		SaveTask.onDisable();
 		rooms.clear();
+	}
+
+	public int getDefaultPlayerLimit() {
+		return defaultPlayerLimit;
 	}
 }

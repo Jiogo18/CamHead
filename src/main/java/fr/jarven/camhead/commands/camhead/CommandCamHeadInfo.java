@@ -74,6 +74,7 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 			.params(room, room.getLocation())
 			.replace("%cameraCount%", String.valueOf(room.getCameras().size()))
 			.replace("%screenCount%", String.valueOf(room.getScreens().size()))
+			.replace("%playerLimit%", String.valueOf(room.getPlayerLimit()))
 			.replace("%saveTime%", saveTime)
 			.replace("%saving%", saving)
 			.send(proxy);

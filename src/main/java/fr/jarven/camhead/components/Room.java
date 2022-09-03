@@ -25,12 +25,14 @@ public class Room implements ComponentBase, Comparable<Room> {
 	private final SortedSet<Camera> cameras;
 	private final SortedSet<Screen> screens;
 	private YamlConfiguration config;
+	private int playerLimit = 0;
 
 	public Room(String name, Location location) {
 		this.name = name;
 		this.location = location.getBlock().getLocation();
 		this.cameras = new TreeSet<>();
 		this.screens = new TreeSet<>();
+		playerLimit = CamHead.manager.getDefaultPlayerLimit();
 	}
 
 	public Camera addCamera(String name, Location location) {
@@ -211,6 +213,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 		config.set("cameraId", cameraId);
 		config.set("screenId", screenId);
 		config.set("saveTimestamp", saveTimestamp);
+		config.set("playerLimit", playerLimit);
 		for (Camera camera : cameras) {
 			config.set("cameras." + camera.getName(), camera);
 		}
@@ -238,16 +241,20 @@ public class Room implements ComponentBase, Comparable<Room> {
 		this.cameraId = config.getInt("cameraId");
 		this.screenId = config.getInt("screenId");
 		this.saveTimestamp = config.getLong("saveTimestamp");
+		this.playerLimit = config.getInt("playerLimit", CamHead.manager.getDefaultPlayerLimit());
 
 		SortedSet<Camera> previousCameras = new TreeSet<>(this.cameras);
 		SortedSet<Screen> previousScreens = new TreeSet<>(this.screens);
-		Set<String> camerasName = ((MemorySection) config.get("cameras")).getKeys(false);
-		Set<String> screensName = ((MemorySection) config.get("screens")).getKeys(false);
+		Set<String> camerasName = config.contains("cameras") ? ((MemorySection) config.get("cameras")).getKeys(false) : Collections.emptySet();
+		Set<String> screensName = config.contains("screens") ? ((MemorySection) config.get("screens")).getKeys(false) : Collections.emptySet();
+
 		// Remove cameras and screens that were removed from the config
-		List<Camera> previousCamerasRemoved = previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).map(c -> { c.removeInternal(); return c; }).toList();
-		List<Screen> previousScreensRemoved = previousScreens.stream().filter(s -> !screensName.contains(s.getName())).map(s -> { s.removeInternal(); return s; }).toList();
-		this.cameras.removeAll(previousCamerasRemoved);
-		this.screens.removeAll(previousScreensRemoved);
+		List<Camera> camerasToRemove = previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).toList();
+		List<Screen> screensToRemove = previousScreens.stream().filter(s -> !screensName.contains(s.getName())).toList();
+		this.cameras.removeAll(camerasToRemove);
+		this.screens.removeAll(screensToRemove);
+		camerasToRemove.forEach(Camera::removeInternal);
+		screensToRemove.forEach(Screen::removeInternal);
 
 		// Add cameras and screens that were added to the config
 		// Update cameras and screens that were changed in the config
@@ -286,55 +293,26 @@ public class Room implements ComponentBase, Comparable<Room> {
 	}
 
 	protected static Room fromConfig(File file, Optional<Room> existingRoom) {
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-		String name = config.getString("name");
-		Location location = config.getLocation("location");
-		assert name != null && location != null;
-		Room room = existingRoom.isPresent() ? existingRoom.get() : new Room(name, location);
-		room.config = config;
-		room.cameraId = config.getInt("cameraId");
-		room.screenId = config.getInt("screenId");
-		room.saveTimestamp = config.getLong("saveTimestamp");
+		Room room;
 
-		Set<String> camerasName = config.contains("cameras") ? ((MemorySection) config.get("cameras")).getKeys(false) : Collections.emptySet();
-		Set<String> screensName = config.contains("screens") ? ((MemorySection) config.get("screens")).getKeys(false) : Collections.emptySet();
-
-		// Remove cameras and screens that were removed from the config
-		List<Camera> camerasToRemove = room.cameras.stream().filter(c -> !camerasName.contains(c.getName())).toList();
-		List<Screen> screensToRemove = room.screens.stream().filter(s -> !screensName.contains(s.getName())).toList();
-		room.cameras.removeAll(camerasToRemove);
-		room.screens.removeAll(screensToRemove);
-		camerasToRemove.forEach(Camera::removeInternal);
-		screensToRemove.forEach(Screen::removeInternal);
-
-		// Add / update cameras and screens
-		camerasName.forEach(cameraName -> {
-			try {
-				room.getCamera(cameraName).ifPresent(room.cameras::remove); // Remove without removing the block
-				Camera camera = (Camera) config.get("cameras." + cameraName, Camera.class);
-				camera.setRoom(room);
-				room.cameras.add(camera);
-			} catch (Exception e) {
-				e.printStackTrace();
-				CamHead.LOGGER.warning("Could not load camera " + cameraName);
-			}
-		});
-		screensName.forEach(screenName -> {
-			try {
-				room.getScreen(screenName).ifPresent(room.screens::remove); // Remove without removing the block
-				Screen screen = (Screen) config.get("screens." + screenName, Screen.class);
-				screen.setRoom(room);
-				room.screens.add(screen);
-			} catch (Exception e) {
-				e.printStackTrace();
-				CamHead.LOGGER.warning("Could not load screen " + screenName);
-			}
-		});
-
+		if (existingRoom.isPresent()) {
+			room = existingRoom.get();
+		} else {
+			YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+			String name = config.getString("name");
+			Location location = config.getLocation("location");
+			assert name != null && location != null;
+			room = new Room(name, location);
+		}
+		room.loadConfig();
 		return room;
 	}
 
 	public long getSaveTimestamp() {
 		return saveTimestamp;
+	}
+
+	public int getPlayerLimit() {
+		return playerLimit;
 	}
 }

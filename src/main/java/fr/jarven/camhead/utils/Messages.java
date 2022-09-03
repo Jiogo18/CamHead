@@ -23,7 +23,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2022-09-03";
+	private static final String LANGUAGE_VERSION = "2022-09-03b";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),

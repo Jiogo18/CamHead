@@ -2,7 +2,7 @@
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-03"
+version.revision: "2022-09-03b"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -29,6 +29,7 @@ camhead.info.room.main: |-
   - Localisation : dans %world% à %x% %y% %z%
   - Caméras : %cameraCount%
   - Écrans : %screenCount%
+  - Limite de joueurs : %playerLimit%
   - Sauvegarde : %saveTime%
   %saving%
 camhead.info.room.savetime.datetime: '%saveTime% (%timezone%)'
