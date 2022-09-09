@@ -114,7 +114,7 @@ public class SpectatorInteractCamera implements Listener {
 		if (event.isCancelled()) return;
 		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getPlayer());
 		if (spectator == null || spectator.isLeaving()) return;
-		if (spectator.getCamera().getCameraSeat().getPassengers().contains(spectator.getPlayer())) return;
+		if (spectator.getCamera().getCameraSeat().filter(seat -> seat.getPassengers().contains(spectator.getPlayer())).isPresent()) return;
 		switch (event.getCause()) {
 			case UNKNOWN: // spectator
 				break;

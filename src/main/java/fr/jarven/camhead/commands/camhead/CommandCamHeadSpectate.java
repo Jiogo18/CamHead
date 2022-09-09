@@ -9,8 +9,11 @@ import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
-import fr.jarven.camhead.spectate.CameraSpectator;
+import fr.jarven.camhead.spectate.EnterResult;
+import fr.jarven.camhead.spectate.LeaveResult;
 import fr.jarven.camhead.utils.Messages;
+import fr.jarven.camhead.utils.Messages.MessageBuilder;
+import net.md_5.bungee.api.ChatMessageType;
 
 public class CommandCamHeadSpectate extends SubCommandBuider {
 	@Override
@@ -31,60 +34,86 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 			.executesNative((proxy, args) -> {
 				Player puppet = getPlayer(proxy);
 				if (puppet == null) return 0;
-				if (CamHead.spectatorManager.leave(puppet)) {
-					proxy.sendMessage("You are no longer spectating");
-					return 1;
-				} else {
-					proxy.sendMessage("You are not spectating");
-					return 0;
-				}
+				return leaveSpectate(proxy, puppet);
 			});
 	}
 
-	private int spectateCamera(CommandSender sender, Player player, Camera camera) {
-		boolean wasSpectating = CamHead.spectatorManager.getSpectator(player) != null;
-		if (CamHead.spectatorManager.enter(player, camera)) {
-			if (wasSpectating) {
-				Messages.Resources.SPECTATE_ENTER.params(camera).send(sender);
-			} else {
-				Messages.Resources.SPECTATE_CHANGE.params(camera).send(sender);
-			}
-			return 1;
-		} else {
-			if (wasSpectating) {
-				Messages.Resources.SPECTATE_SAME_CAMERA.params(camera).sendFailure(sender);
-			} else {
-				Messages.Resources.SPECTATE_FAILED.params(camera).sendFailure(sender);
-			}
-			return 0;
+	public static int sendMessageForEnterResult(CommandSender sender, EnterResult result, ChatMessageType position) {
+		int status = 0;
+		MessageBuilder builder = null;
+		switch (result.getType()) {
+			case SUCCESS_ENTER:
+				builder = Messages.Resources.SPECTATE_ENTER_SUCCESS.params(result.getCamera());
+				status = 1;
+				break;
+			case SUCCESS_CHANGE:
+				builder = Messages.Resources.SPECTATE_ENTER_CHANGED.params(result.getCamera());
+				status = 1;
+				break;
+			case SAME_CAMERA:
+				builder = Messages.Resources.SPECTATE_ENTER_SAME_CAMERA.params(result.getCamera());
+				break;
+			case FAILED_UNKNOWN:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_UNKNOWN.params(result.getCamera());
+				break;
+			case NO_CAMERAS:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_CAMERAS.params(result.getCamera().getRoom());
+				break;
+			case NO_PERMISSION:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_PERMISSION.params(result.getCamera());
+				break;
+			case NO_SEAT:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_SEAT.params(result.getCamera());
+				break;
+			case ROOM_FULL:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_ROOM_FULL.params(result.getCamera().getRoom());
+				break;
 		}
+
+		if (builder == null) {
+			throw new IllegalStateException("Builder is null");
+		} else if (sender instanceof Player && position != null) {
+			builder.send((Player) sender, position);
+		} else {
+			builder.send(sender);
+		}
+		return status;
 	}
 
-	private int spectateRoom(CommandSender sender, Player player, Room room) {
-		boolean wasSpectating = CamHead.spectatorManager.getSpectator(player) != null;
-		if (CamHead.spectatorManager.enter(player, room)) {
-			CameraSpectator spectator = CamHead.spectatorManager.getSpectator(player);
-			if (wasSpectating) {
-				Messages.Resources.SPECTATE_ENTER.params(spectator.getCamera()).send(sender);
-			} else {
-				Messages.Resources.SPECTATE_CHANGE.params(spectator.getCamera()).send(sender);
-			}
-			return 1;
-		} else {
-			if (wasSpectating) {
-				if (room.getCameras().isEmpty()) {
-					Messages.Resources.SPECTATE_NO_CAMERAS.params(room).sendFailure(sender);
-				} else {
-					Messages.Resources.SPECTATE_SAME_ROOM.params(room).sendFailure(sender);
-				}
-			} else {
-				Messages.Resources.SPECTATE_FAILED.params(room).sendFailure(sender);
-			}
-			return 0;
-		}
+	public static int spectateCamera(CommandSender sender, Player player, Camera camera) {
+		EnterResult result = CamHead.spectatorManager.enter(player, camera);
+		return sendMessageForEnterResult(sender, result, null);
 	}
 
-	private Player getPlayer(NativeProxyCommandSender proxy) {
+	public static int spectateRoom(CommandSender sender, Player player, Room room) {
+		EnterResult result = CamHead.spectatorManager.enter(player, room);
+		return sendMessageForEnterResult(sender, result, null);
+	}
+
+	public static int leaveSpectate(CommandSender sender, Player player) {
+		LeaveResult result = CamHead.spectatorManager.leave(player);
+
+		switch (result.getType()) {
+			case SUCCESS:
+				Messages.Resources.SPECTATE_LEAVE_SUCCESS.params(result.getCamera()).send(sender);
+				return 1;
+			case ALREADY_LEAVING:
+				Messages.Resources.SPECTATE_LEAVE_FAILED_ALREADY_LEAVING.sendFailure(sender);
+				return 0;
+			case FAILED_UNKNOWN:
+				Messages.Resources.SPECTATE_LEAVE_FAILED_UNKNOWN.params(result.getCamera()).sendFailure(sender);
+				return 0;
+			case NOT_SPECTATING:
+				Messages.Resources.SPECTATE_LEAVE_FAILED_NOT_SPECTATING.sendFailure(sender);
+				return 0;
+			case NO_PERMISSION:
+				Messages.Resources.SPECTATE_LEAVE_FAILED_NO_PERMISSION.params(result.getCamera()).sendFailure(sender);
+				return 0;
+		}
+		throw new IllegalStateException("Unknown LeaveResult type: " + result.getType());
+	}
+
+	public static Player getPlayer(NativeProxyCommandSender proxy) {
 		CommandSender puppet = proxy.getCallee();
 		if (puppet instanceof Player) {
 			return (Player) puppet;

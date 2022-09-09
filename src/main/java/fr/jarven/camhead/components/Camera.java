@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -143,11 +144,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	protected void removeInternal() {
 		CameraAnimator.removeCamera(this);
 		location.getBlock().setType(Material.AIR);
-		if (cameraman != null && cameraman.isValid()) {
+		if (hasCameraman()) {
 			cameraman.remove();
 		}
 		cameraman = null;
-		if (seat != null && seat.isValid()) {
+		if (hasSeat()) {
 			seat.remove();
 		}
 		seat = null;
@@ -185,6 +186,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		if (cameraman == null || cameraman.isDead()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameraman.addScoreboardTag("camhead_cameraman");
+			cameraman.addScoreboardTag("camhead_camera_" + name);
+			cameraman.setCustomName("CamHead Cameraman " + name);
 			makeDirty();
 		} else if (!cameramanLocation.equals(cameraman.getLocation())) {
 			cameraman.teleport(cameramanLocation);
@@ -201,6 +204,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		if (seat == null || seat.isDead()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
 			seat.addScoreboardTag("camhead_seat");
+			seat.addScoreboardTag("camhead_camera_" + name);
+			seat.setCustomName("CamHead Seat " + name);
 			makeDirty();
 		} else if (!seatLocation.equals(seat.getLocation())) {
 			seat.teleport(seatLocation);
@@ -359,14 +364,22 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		return YawBlockFace.blockFaceToYaw(animationDirection);
 	}
 
-	public ArmorStand getCameraSeat() {
-		if (seat == null) replaceSeat();
+	public ArmorStand getOrCreateSeat() {
+		if (seat == null || seat.isDead()) replaceSeat();
 		return seat;
 	}
 
-	public ArmorStand getCameraman() {
-		if (cameraman == null) replaceCameraman();
+	public Optional<ArmorStand> getCameraSeat() {
+		return seat == null || seat.isDead() ? Optional.empty() : Optional.of(seat);
+	}
+
+	public ArmorStand getOrCreateCameraman() {
+		if (cameraman == null || cameraman.isDead()) replaceCameraman();
 		return cameraman;
+	}
+
+	public Optional<ArmorStand> getCameraman() {
+		return cameraman == null || cameraman.isDead() ? Optional.empty() : Optional.of(cameraman);
 	}
 
 	private static void loadDirectionOffsets(EnumMap<BlockFace, Vector> directionOffsets, YamlConfiguration config, String path) {
@@ -418,14 +431,29 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		return SEAT_OFFSET.getOrDefault(supportDirection, new Vector(0, 0, 0));
 	}
 
-	public void addPlayer(Player player) {
+	public boolean hasCameraman() {
+		return cameraman != null && cameraman.isValid();
+	}
+
+	public boolean hasSeat() {
+		return seat != null && seat.isValid();
+	}
+
+	public boolean canHaveSpectators() {
+		return hasSeat();
+	}
+
+	public boolean addPlayer(Player player) {
+		if (!hasSeat()) return false;
 		this.players.add(player);
-		this.cameraman.addPassenger(player);
+		this.seat.addPassenger(player);
+		return true;
 	}
 
 	public void removePlayer(Player player) {
 		this.players.remove(player);
-		this.cameraman.removePassenger(player);
+		if (hasSeat())
+			this.seat.removePassenger(player);
 	}
 
 	public Set<Player> getPlayers() {

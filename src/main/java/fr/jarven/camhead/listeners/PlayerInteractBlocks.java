@@ -17,13 +17,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import fr.jarven.camhead.CamHead;
+import fr.jarven.camhead.commands.camhead.CommandCamHeadSpectate;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.ComponentBase;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
 import fr.jarven.camhead.spectate.CameraSpectator;
+import fr.jarven.camhead.spectate.EnterResult;
 import fr.jarven.camhead.utils.Messages;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -53,7 +56,10 @@ public class PlayerInteractBlocks implements Listener {
 		if (armorStand == null) return null;
 		UUID uuid = armorStand.getUniqueId();
 		for (Room room : CamHead.manager.getRooms()) {
-			Optional<Camera> camera = room.getCameras().stream().filter(c -> c.getCameraSeat().getUniqueId().equals(uuid) || c.getCameraman().getUniqueId().equals(uuid)).findAny();
+			Optional<Camera> camera = room.getCameras()
+							  .stream()
+							  .filter(c -> c.getCameraSeat().filter(seat -> seat.getUniqueId().equals(uuid)).isPresent() || c.getCameraman().filter(cameraman -> cameraman.getUniqueId().equals(uuid)).isPresent())
+							  .findAny();
 			if (camera.isPresent()) return camera.get();
 		}
 		return null;
@@ -200,7 +206,10 @@ public class PlayerInteractBlocks implements Listener {
 			}
 		} else if (component instanceof Screen) {
 			if (CamHead.spectatorManager.isAllowEnterByScreen()) {
-				CamHead.spectatorManager.enter(player, ((Screen) component));
+				EnterResult result = CamHead.spectatorManager.enter(player, ((Screen) component));
+				if (!result.isSuccess()) {
+					CommandCamHeadSpectate.sendMessageForEnterResult(player, result, ChatMessageType.ACTION_BAR);
+				}
 			}
 		}
 	}

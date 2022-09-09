@@ -6,9 +6,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import java.util.Optional;
+
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
+import fr.jarven.camhead.spectate.EnterResult.EnterResultType;
+import fr.jarven.camhead.spectate.LeaveResult.LeaveResultType;
+
 
 public class CameraSpectator implements Comparable<CameraSpectator> {
 	public static GameMode GAMEMODE = GameMode.SPECTATOR;
@@ -53,11 +58,21 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	}
 
 	public void previousCamera() {
-		enter(getRoom().getPreviousCamera(camera));
+		Optional<Camera> previousCamera = getRoom().getPreviousCamera(camera);
+		if (previousCamera.isPresent()) {
+			enter(previousCamera.get());
+		} else {
+			leave();
+		}
 	}
 
 	public void nextCamera() {
-		enter(getRoom().getNextCamera(camera));
+		Optional<Camera> nextCamera = getRoom().getNextCamera(camera);
+		if (nextCamera.isPresent()) {
+			enter(nextCamera.get());
+		} else {
+			leave();
+		}
 	}
 
 	public Location getLocation(Location playerYawPitch) {
@@ -67,7 +82,9 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		return location;
 	}
 
-	public boolean enter() {
+	public EnterResult enter() {
+		if (!camera.hasSeat()) return new EnterResult(camera, EnterResultType.NO_SEAT);
+
 		player.setGameMode(GAMEMODE);
 		player.setSneaking(false);
 		player.setInvisible(true);
@@ -82,32 +99,45 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);
 		}
-		camera.addPlayer(player);
 		leaving = false;
-		return true;
+		if (camera.addPlayer(player)) {
+			return new EnterResult(camera, EnterResultType.SUCCESS_ENTER);
+		} else {
+			CamHead.spectatorManager.leave(player);
+			return new EnterResult(camera, EnterResultType.FAILED_UNKNOWN);
+		}
 	}
 
-	public boolean enter(Camera camera) {
+	public EnterResult enter(Camera camera) {
 		if (camera == null) {
 			throw new IllegalArgumentException("camera must not be null");
 		}
+		if (!camera.canHaveSpectators()) return new EnterResult(camera, EnterResultType.NO_SEAT);
+
 		if (this.camera != camera) {
+			boolean wasInCamera = this.camera != null;
 			if (this.camera != null) {
 				this.camera.removePlayer(player);
 			}
 			this.camera = camera;
-			return enter();
+			EnterResult result = enter();
+			if (result.isSuccess() && wasInCamera) {
+				return new EnterResult(camera, EnterResultType.SUCCESS_CHANGE);
+			} else {
+				return result;
+			}
+		} else {
+			return new EnterResult(camera, EnterResultType.SAME_CAMERA);
 		}
-		return true;
 	}
 
-	protected boolean leave() {
-		if (leaving) return false;
+	protected LeaveResult leave() {
+		if (leaving) return new LeaveResult(camera, LeaveResultType.ALREADY_LEAVING);
 		leaving = true;
 		camera.removePlayer(player);
 		stateBeforeEnter.restore();
 		player.setSneaking(false);
-		return true;
+		return new LeaveResult(camera, LeaveResultType.SUCCESS);
 	}
 
 	public boolean isLeaving() {

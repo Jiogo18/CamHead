@@ -1,8 +1,8 @@
-# Edited by Jarven on 2022-09-03.
+# Edited by Jarven on 2022-09-09.
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-03b"
+version.revision: "2022-09-09c"
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.
@@ -110,14 +110,19 @@ camhead.rotate.camera.detailed: "Camera rotated: support=%support% facing=%facin
 camhead.rotate.screen.success: Screen rotated.
 camhead.rotate.screen.detailed: "Screen rotated: support=%support% facing=%facing%."
 
-camhead.spectate.leave: No longer spectating.
-camhead.spectate.enter: Now in camera %camera%.
-camhead.spectate.change: Now in camera %camera%.
-camhead.spectate.notspectating: Not spectating.
 camhead.spectate.notaplayer: Not a player.
-camhead.spectate.samecamera: Already in camera %camera%.
-camhead.spectate.sameroom: Already in room %room%.
-camhead.spectate.failed: Failed to spectate.
-camhead.spectate.nocamera: No camera found.
+camhead.spectate.enter.success: Now in camera %camera%.
+camhead.spectate.enter.changed: Now in camera %camera%.
+camhead.spectate.enter.same_camera: Already in camera %camera%.
+camhead.spectate.enter.failed.unknown: Failed to spectate.
+camhead.spectate.enter.failed.no_cameras: 'Failed to spectate: no cameras found in room %room%.'
+camhead.spectate.enter.failed.no_permission: 'Failed to spectate: no permission.'
+camhead.spectate.enter.failed.no_seat: 'Failed to spectate: no seat found.'
+camhead.spectate.enter.failed.room_full: 'Failed to spectate: room %room% is full.'
+camhead.spectate.leave.success: No longer spectating.
+camhead.spectate.leave.failed.already_leaving: Already leaving.
+camhead.spectate.leave.failed.unknown: Failed to leave.
+camhead.spectate.leave.failed.not_spectating: Not spectating.
+camhead.spectate.leave.failed.no_permission: 'Failed to leave: no permission.'
 
 camhead.teleport.notanentity: 'Not an entity: %name%.'

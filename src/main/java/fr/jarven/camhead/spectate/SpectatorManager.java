@@ -14,6 +14,8 @@ import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
+import fr.jarven.camhead.spectate.EnterResult.EnterResultType;
+import fr.jarven.camhead.spectate.LeaveResult.LeaveResultType;
 
 public class SpectatorManager {
 	private final Map<UUID, CameraSpectator> spectators = new HashMap<>();
@@ -37,58 +39,66 @@ public class SpectatorManager {
 		return spectators.get(player.getUniqueId());
 	}
 
+	public boolean isRoomFull(Room room) {
+		long playersInRoom = spectators.values().stream().filter(s -> s.getCamera().getRoom().equals(room)).count();
+		return playersInRoom >= room.getPlayerLimit();
+	}
+
 	public boolean canEnter(Player player, Camera camera) {
 		Room room = camera.getRoom();
 		CameraSpectator spectator = getSpectator(player);
-		if (spectator != null) {
-			if (spectator.getRoom().equals(room)) return true; // Can change camera
-		}
-		long playersInRoom = spectators.values().stream().filter(s -> s.getCamera().getRoom().equals(room)).count();
-		return playersInRoom < room.getPlayerLimit();
+		boolean stayInRoom = spectator != null && spectator.getRoom().equals(room);
+		return stayInRoom || !isRoomFull(room); // Can change camera in the same room, or the room is not full
 	}
 
-	public boolean enter(Player player, Camera camera) {
-		if (!canEnter(player, camera)) return false;
+	public EnterResult enter(Player player, Camera camera) {
+		if (!canEnter(player, camera)) return new EnterResult(camera, EnterResultType.ROOM_FULL);
 
 		CameraSpectator spectator = getSpectator(player);
 		if (spectator != null) {
 			if (spectator.getCamera() == camera) {
-				return false;
-			} else {
-				spectator.enter(camera);
+				return new EnterResult(camera, EnterResultType.SAME_CAMERA);
 			}
+			EnterResult result = spectator.enter(camera);
+			result.ifFailure(() -> leave(player));
+			return result;
 		} else {
 			spectator = new CameraSpectator(player, camera);
 			spectators.put(player.getUniqueId(), spectator);
-			spectator.enter();
+			EnterResult result = spectator.enter();
+			if (result.isSuccess()) {
+				return new EnterResult(camera, EnterResultType.SUCCESS_ENTER);
+			} else {
+				leave(player);
+				return result;
+			}
 		}
-		return true;
 	}
 
-	public boolean enter(Player player, Room room) {
+	public EnterResult enter(Player player, Room room) {
 		if (room.getCameras().isEmpty()) {
-			return false;
+			return new EnterResult(null, EnterResultType.NO_CAMERAS);
 		} else {
 			int index = random.nextInt(room.getCameras().size());
 			Camera camera = room.getCameras().toArray(new Camera[0])[index];
+			if (!camera.canHaveSpectators()) camera = room.getNextCamera(camera).orElse(null);
 			return enter(player, camera);
 		}
 	}
 
-	public boolean enter(Player player, Screen screen) {
+	public EnterResult enter(Player player, Screen screen) {
 		return enter(player, screen.getRoom());
 	}
 
-	public boolean leave(Player player) {
+	public LeaveResult leave(Player player) {
 		CameraSpectator spectator = getSpectator(player);
 		if (spectator == null) {
-			return false;
-		} else if (!spectator.leave()) {
-			return false;
-		} else {
-			spectators.remove(player.getUniqueId());
-			return true;
+			return new LeaveResult(null, LeaveResultType.NOT_SPECTATING);
 		}
+
+		LeaveResult result = spectator.leave();
+		result.ifSuccess(() -> spectators.remove(player.getUniqueId()));
+		return result;
 	}
 
 	public void onDisable() {

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.SaveTask;
@@ -151,26 +152,32 @@ public class Room implements ComponentBase, Comparable<Room> {
 		return name.hashCode();
 	}
 
-	public Camera getPreviousCamera(Camera camera) {
-		Camera previousCamera = cameras.last();
-		for (Camera camera2 : cameras) {
-			if (camera2 == camera) {
-				return previousCamera;
-			}
-			previousCamera = camera2;
+	public Optional<Camera> getPreviousCamera(Camera camera) {
+		// From camera (expect camera) to start, then from end to camera (except camera)
+		Camera[] nextCameras = Stream
+					       .concat(this.cameras.headSet(camera).stream(), this.cameras.tailSet(camera).stream())
+					       .filter(c -> !c.equals(camera))
+					       .toArray(Camera[] ::new);
+		for (int i = nextCameras.length - 1; i >= 0; i--) {
+			Camera camera2 = nextCameras[i];
+			if (camera2.canHaveSpectators())
+				return Optional.of(camera2);
 		}
-		throw new IllegalStateException("Camera not found");
+		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
 	}
 
-	public Camera getNextCamera(Camera camera) {
-		Camera camera2 = cameras.last();
-		for (Camera nextCamera : cameras) {
-			if (camera2 == camera) {
-				return nextCamera;
-			}
-			camera2 = nextCamera;
+	public Optional<Camera> getNextCamera(Camera camera) {
+		// From camera (expect camera) to end, then from start to camera (except camera)
+		Camera[] nextCameras = Stream
+					       .concat(this.cameras.headSet(camera).stream(), this.cameras.tailSet(camera).stream())
+					       .filter(c -> !c.equals(camera))
+					       .toArray(Camera[] ::new);
+		for (int i = 0; i < nextCameras.length; i++) {
+			Camera camera2 = nextCameras[i];
+			if (camera2.canHaveSpectators())
+				return Optional.of(camera2);
 		}
-		throw new IllegalStateException("Camera not found");
+		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
 	}
 
 	@Override

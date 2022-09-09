@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2022-09-03.
+# Modifié par Jarven le 2022-09-09.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-03b"
+version.revision: "2022-09-09c"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -110,14 +110,19 @@ camhead.rotate.camera.detailed: "Caméra pivotée : support=%support% facing=%fa
 camhead.rotate.screen.success: Écran %screen% pivoté.
 camhead.rotate.screen.detailed: "Écran pivoté : support=%support% facing=%facing%."
 
-camhead.spectate.leave: Sortie de la vue caméra.
-camhead.spectate.enter: Entré dans la caméra %camera%.
-camhead.spectate.change: Passé à la caméra %camera%.
-camhead.spectate.notspectating: Pas dans une caméra.
 camhead.spectate.notaplayer: Pas un joueur.
-camhead.spectate.samecamera: Déjà dans cette caméra.
-camhead.spectate.sameroom: Déjà dans cette pièce.
-camhead.spectate.failed: Échec de la vue caméra.
-camhead.spectate.nocamera: Pas de caméra dans cette pièce.
+camhead.spectate.enter.success: Entré dans la caméra %camera%.
+camhead.spectate.enter.changed: Passé à la caméra %camera%.
+camhead.spectate.enter.same_camera: Déjà dans cette caméra.
+camhead.spectate.enter.failed.unknown: Échec de la vue caméra.
+camhead.spectate.enter.failed.no_cameras: "Échec de la vue caméra : pas de caméras dans %room%."
+camhead.spectate.enter.failed.no_permission: "Échec de la vue caméra : vous n'avez pas la permission."
+camhead.spectate.enter.failed.no_seat: "Échec de la vue caméra : pas de siège."
+camhead.spectate.enter.failed.room_full: "Échec de la vue caméra : la pièce est pleine."
+camhead.spectate.leave.success: Sortie de la vue caméra.
+camhead.spectate.leave.failed.already_leaving: Déjà en train de quitter la caméra.
+camhead.spectate.leave.failed.unknown: Échec de la sortie de la vue caméra.
+camhead.spectate.leave.failed.not_spectating: Pas dans une caméra.
+camhead.spectate.leave.failed.no_permission: "Échec de la sortie de la vue caméra : vous n'avez pas la permission."
 
 camhead.teleport.notanentity: '%name% n''est pas une entité.'

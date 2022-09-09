@@ -1,7 +1,6 @@
 package fr.jarven.camhead.task;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -106,7 +105,7 @@ public class CameraAnimator {
 			}
 			angle = (angleMin + angleMax) / 2;
 			direction = 1;
-			cameramanYaw = camera.getCameraman().getLocation().getYaw();
+			camera.getCameraman().ifPresent(cameraman -> cameramanYaw = cameraman.getLocation().getYaw());
 		}
 
 		private void animate() {
@@ -123,10 +122,11 @@ public class CameraAnimator {
 		}
 
 		private void setAngle(float angle) {
-			ArmorStand cameraman = camera.getCameraman();
-			EulerAngle head = cameraman.getHeadPose();
-			head = head.setY(Math.toRadians(angle - cameramanYaw));
-			cameraman.setHeadPose(head);
+			camera.getCameraman().ifPresent(cameraman -> {
+				EulerAngle head = cameraman.getHeadPose();
+				head = head.setY(Math.toRadians(angle - cameramanYaw));
+				cameraman.setHeadPose(head);
+			});
 		}
 	}
 }

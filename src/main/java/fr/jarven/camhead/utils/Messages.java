@@ -17,13 +17,15 @@ import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2022-09-03b";
+	private static final String LANGUAGE_VERSION = "2022-09-09c";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -104,15 +106,21 @@ public class Messages {
 		ROTATE_SCREEN_SUCCESS("camhead.rotate.screen.success"),
 		ROTATE_SCREEN_DETAILED("camhead.rotate.screen.detailed"),
 
-		SPECTATE_LEAVE("camhead.spectate.leave"),
-		SPECTATE_ENTER("camhead.spectate.enter"),
-		SPECTATE_CHANGE("camhead.spectate.change"),
-		SPECTATE_NOT_SPECTATING("camhead.spectate.notspectating"),
 		SPECTATE_NOT_A_PLAYER("camhead.spectate.notaplayer"),
-		SPECTATE_SAME_CAMERA("camhead.spectate.samecamera"),
-		SPECTATE_SAME_ROOM("camhead.spectate.sameroom"),
-		SPECTATE_FAILED("camhead.spectate.failed"),
-		SPECTATE_NO_CAMERAS("camhead.spectate.nocameras"),
+		SPECTATE_ENTER_SUCCESS("camhead.spectate.enter.success"),
+		SPECTATE_ENTER_CHANGED("camhead.spectate.enter.changed"),
+		SPECTATE_ENTER_SAME_CAMERA("camhead.spectate.enter.same_camera"),
+		SPECTATE_ENTER_FAILED_UNKNOWN("camhead.spectate.enter.failed.unknown"),
+		SPECTATE_ENTER_FAILED_NO_CAMERAS("camhead.spectate.enter.failed.no_cameras"),
+		SPECTATE_ENTER_FAILED_NO_PERMISSION("camhead.spectate.enter.failed.no_permission"),
+		SPECTATE_ENTER_FAILED_NO_SEAT("camhead.spectate.enter.failed.no_seat"),
+		SPECTATE_ENTER_FAILED_ROOM_FULL("camhead.spectate.enter.failed.room_full"),
+		SPECTATE_LEAVE_SUCCESS("camhead.spectate.leave.success"),
+		SPECTATE_LEAVE_FAILED_ALREADY_LEAVING("camhead.spectate.leave.failed.already_leaving"),
+		SPECTATE_LEAVE_FAILED_UNKNOWN("camhead.spectate.leave.failed.unknown"),
+		SPECTATE_LEAVE_FAILED_NOT_SPECTATING("camhead.spectate.leave.failed.not_spectating"),
+		SPECTATE_LEAVE_FAILED_NO_PERMISSION("camhead.spectate.leave.failed.no_permission"),
+
 		TELEPORT_NOT_AN_ENTITY("camhead.teleport.notanentity"),
 		;
 
@@ -144,12 +152,19 @@ public class Messages {
 			proxy.sendMessage(build(proxy));
 			return this;
 		}
+		public void send(Player player, ChatMessageType position) {
+			player.spigot().sendMessage(position, TextComponent.fromLegacyText(build(player)));
+		}
 		public Resources sendFailure(CommandSender sender) {
 			sender.spigot().sendMessage(new ComponentBuilder(build(sender)).color(ChatColor.RED).create());
 			return this;
 		}
 		public Resources sendFailure(NativeProxyCommandSender proxy) {
 			proxy.spigot().sendMessage(new ComponentBuilder(build(proxy)).color(ChatColor.RED).create());
+			return this;
+		}
+		public Resources sendFailure(Player player, ChatMessageType position) {
+			player.spigot().sendMessage(position, new ComponentBuilder(build(player)).color(ChatColor.RED).create());
 			return this;
 		}
 	}
@@ -225,6 +240,10 @@ public class Messages {
 			proxy.getCaller().sendMessage(build(proxy.getCaller()));
 			return this;
 		}
+		public MessageBuilder send(Player player, ChatMessageType position) {
+			player.spigot().sendMessage(position, TextComponent.fromLegacyText(build(player)));
+			return this;
+		}
 		public MessageBuilder sendToBoth(NativeProxyCommandSender proxy) {
 			if (!proxy.getCallee().equals(proxy.getCaller())) {
 				send(proxy.getCaller());
@@ -238,6 +257,10 @@ public class Messages {
 		}
 		public MessageBuilder sendFailure(NativeProxyCommandSender proxy) {
 			proxy.getCaller().spigot().sendMessage(new ComponentBuilder(build(proxy.getCaller())).color(ChatColor.RED).create());
+			return this;
+		}
+		public MessageBuilder sendFailure(Player player, ChatMessageType position) {
+			player.spigot().sendMessage(position, new ComponentBuilder(build(player)).color(ChatColor.RED).create());
 			return this;
 		}
 	}
@@ -279,10 +302,10 @@ public class Messages {
 		String name = file.getName().replace(".yml", "");
 		YamlConfiguration lang = YamlConfiguration.loadConfiguration(file);
 		String version = lang.getString("version.revision", "");
+		boolean versionWarning = lang.getBoolean("version.warnings");
+		boolean autoupdate = lang.getBoolean("version.autoupdate");
 		// If outdated
 		if (!version.equals(LANGUAGE_VERSION)) {
-			boolean versionWarning = lang.getBoolean("version.warnings");
-			boolean autoupdate = lang.getBoolean("version.autoupdate");
 			// Update it
 			if (autoupdate) {
 				if (versionWarning) {
@@ -290,6 +313,13 @@ public class Messages {
 				}
 				saveLanguageFile(name, true);
 				lang = YamlConfiguration.loadConfiguration(file);
+
+				version = lang.getString("version.revision", "");
+				// If the resource is outdated
+				if (!version.equals(LANGUAGE_VERSION)) {
+					CamHead.LOGGER.severe("Language file " + name + " of CamHead's resources is outdated. Please, contact the plugin author to update it."
+						+ " (expected " + LANGUAGE_VERSION + ", found " + version + ")");
+				}
 			} else {
 				if (versionWarning) {
 					CamHead.LOGGER.warning("Language file " + name + " is outdated, please update or delete it");
