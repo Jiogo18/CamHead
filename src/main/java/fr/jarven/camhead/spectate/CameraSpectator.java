@@ -14,7 +14,6 @@ import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.spectate.EnterResult.EnterResultType;
 import fr.jarven.camhead.spectate.LeaveResult.LeaveResultType;
 
-
 public class CameraSpectator implements Comparable<CameraSpectator> {
 	public static GameMode GAMEMODE = GameMode.SPECTATOR;
 	private Player player;
@@ -164,7 +163,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.hadAllowFlight = player.getAllowFlight();
 			this.wasFlying = player.isFlying();
 			this.flySpeed = player.getFlySpeed();
-			this.wasInvisible = player.isInvisible();
+			this.wasInvisible = this.gameMode != GameMode.SPECTATOR && player.isInvisible();
 			this.hadGravity = player.hasGravity();
 			this.wasCollidable = player.isCollidable();
 			this.wasCanPickupItems = player.getCanPickupItems();

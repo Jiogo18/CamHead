@@ -36,8 +36,8 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 			.params(camera, camera.getRoom(), camera.getLocation())
 			.replace("%supportDirection%", camera.getSupportDirection().name())
 			.replace("%animationDirection%", camera.getAnimationDirection().name())
-			.replace("%cameraman%", camera.getCameramanUUID().toString() + " (" + (camera.getCameraman().isPresent() ? "ok" : "unknown") + ")")
-			.replace("%seat%", camera.getSeatUUID().toString() + " (" + (camera.getCameraSeat().isPresent() ? "ok" : "unknown") + ")");
+			.replace("%cameraman%", camera.getCameramanUUID().toString() + " (" + (camera.getCameraman(true).isPresent() ? "ok" : "unknown") + ")")
+			.replace("%seat%", camera.getSeatUUID().toString() + " (" + (camera.getCameraSeat(true).isPresent() ? "ok" : "unknown") + ")");
 	}
 
 	public static MessageBuilder infoScreen(Screen screen) {

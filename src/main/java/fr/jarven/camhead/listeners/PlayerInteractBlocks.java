@@ -59,7 +59,7 @@ public class PlayerInteractBlocks implements Listener {
 		for (Room room : CamHead.manager.getRooms()) {
 			Optional<Camera> camera = room.getCameras()
 							  .stream()
-							  .filter(c -> c.getCameraSeat().filter(seat -> seat.getUniqueId().equals(uuid)).isPresent() || c.getCameraman().filter(cameraman -> cameraman.getUniqueId().equals(uuid)).isPresent())
+							  .filter(c -> c.getSeatUUID().equals(uuid) || c.getCameramanUUID().equals(uuid))
 							  .findAny();
 			if (camera.isPresent()) return camera.get();
 		}

@@ -66,7 +66,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.animationDirection = animationDirection;
 		this.cameramanUUID = cameraman;
 		this.seatUUID = seat;
-		loadChunk();
 		this.cameraman = (ArmorStand) Bukkit.getEntity(cameraman);
 		this.seat = (ArmorStand) Bukkit.getEntity(seat);
 		// replace latter when the room is set (for makeDirty)
@@ -149,10 +148,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	protected void removeInternal() {
 		CameraAnimator.removeCamera(this);
 		location.getBlock().setType(Material.AIR);
-		getCameraman().ifPresent(ArmorStand::remove);
+		getCameraman(true).ifPresent(ArmorStand::remove);
 		this.cameramanUUID = null;
 		this.cameraman = null;
-		getCameraSeat().ifPresent(ArmorStand::remove);
+		getCameraSeat(true).ifPresent(ArmorStand::remove);
 		this.cameramanUUID = null;
 		this.seat = null;
 	}
@@ -187,7 +186,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
 
-		if (getCameraman().isEmpty()) {
+		loadChunk();
+		if (getCameraman(true).isEmpty()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameramanUUID = cameraman.getUniqueId();
 			cameraman.addScoreboardTag("camhead_cameraman");
@@ -206,7 +206,9 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	public void replaceSeat() {
 		removePlayers();
 		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
-		if (getCameraSeat().isEmpty()) {
+
+		loadChunk();
+		if (getCameraSeat(true).isEmpty()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
 			seatUUID = seat.getUniqueId();
 			seat.addScoreboardTag("camhead_seat");
@@ -371,17 +373,21 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public ArmorStand getOrCreateSeat() {
-		if (getCameraSeat().isEmpty()) replaceSeat();
+		if (getCameraSeat(true).isEmpty()) replaceSeat();
 		return seat;
 	}
 
-	public Optional<ArmorStand> getCameraSeat() {
-		if (seat != null && !seat.isValid()) seat = null;
+	public Optional<ArmorStand> getCameraSeat(boolean loadChunk) {
+		if (seat != null && (!seat.isValid() || seat.isDead())) seat = null;
 		if (seat == null && seatUUID != null) {
-			loadChunk();
+			if (loadChunk) loadChunk();
 			seat = (ArmorStand) Bukkit.getEntity(seatUUID);
 		}
 		return Optional.ofNullable(seat);
+	}
+
+	public Optional<ArmorStand> getCameraSeat() {
+		return getCameraSeat(false);
 	}
 
 	public UUID getSeatUUID() {
@@ -389,17 +395,21 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public ArmorStand getOrCreateCameraman() {
-		if (getCameraman().isEmpty()) replaceCameraman();
+		if (getCameraman(true).isEmpty()) replaceCameraman();
 		return cameraman;
 	}
 
-	public Optional<ArmorStand> getCameraman() {
-		if (cameraman != null && !cameraman.isValid()) cameraman = null;
+	public Optional<ArmorStand> getCameraman(boolean loadChunk) {
+		if (cameraman != null && (!cameraman.isValid() || cameraman.isDead())) cameraman = null;
 		if (cameraman == null && cameramanUUID != null) {
-			loadChunk();
+			if (loadChunk) loadChunk();
 			cameraman = (ArmorStand) Bukkit.getEntity(cameramanUUID);
 		}
 		return Optional.ofNullable(cameraman);
+	}
+
+	public Optional<ArmorStand> getCameraman() {
+		return getCameraman(false);
 	}
 
 	public UUID getCameramanUUID() {
@@ -456,11 +466,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public boolean hasCameraman() {
-		return getCameraman().isPresent();
+		return getCameraman(true).isPresent();
 	}
 
 	public boolean hasSeat() {
-		return getCameraSeat().isPresent();
+		return getCameraSeat(true).isPresent();
 	}
 
 	public boolean canHaveSpectators() {
@@ -469,6 +479,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public boolean addPlayer(Player player) {
 		if (!hasSeat()) return false;
+		if (!this.seat.isValid()) return false;
 		this.players.add(player);
 		this.seat.addPassenger(player);
 		return true;
