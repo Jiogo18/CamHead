@@ -41,15 +41,15 @@ public abstract class CommandTools {
 	}
 
 	protected static ArgumentTree cameraArgument(Function<CameraArgument, ArgumentTree> generateAfter) {
-		return new RoomArgument("room1").then(generateAfter.apply(new CameraArgument("camera1")));
+		return new RoomArgument("room_name").then(generateAfter.apply(new CameraArgument("camera_name")));
 	}
 
 	protected static ArgumentTree screenArgument(Function<ScreenArgument, ArgumentTree> generateAfter) {
-		return new RoomArgument("room1").then(generateAfter.apply(new ScreenArgument("screen1")));
+		return new RoomArgument("room_name").then(generateAfter.apply(new ScreenArgument("screen_name")));
 	}
 
 	protected static RoomArgument roomArgument() {
-		return new RoomArgument("room1");
+		return new RoomArgument("room_name");
 	}
 
 	protected ArgumentTree generateCameraSelector(Function<CameraArgument, ArgumentTree> generateAfter) {

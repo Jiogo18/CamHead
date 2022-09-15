@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2022-09-09.
+# Modifié par Jarven le 2022-09-15.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-09c"
+version.revision: "2022-09-15"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -42,6 +42,8 @@ camhead.info.camera: |-
   - Pièce : %room%
   - Direction du support : %supportDirection%
   - Direction d''animation : %animationDirection%
+  - Caméraman : %cameraman%
+  - Siège : %seat%
 camhead.info.screen: |-
   Écran %screen% :
   - Localisation : dans %world% à %x% %y% %z%

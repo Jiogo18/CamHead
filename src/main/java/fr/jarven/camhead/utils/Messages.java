@@ -25,7 +25,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2022-09-09c";
+	private static final String LANGUAGE_VERSION = "2022-09-15";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -350,11 +350,11 @@ public class Messages {
 		return tr(local, message.getKey());
 	}
 
-	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<String> info, Resources message) {
+	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<?> info, Resources message) {
 		return new CustomArgumentException(tr(info.sender(), message));
 	}
 
-	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<String> info, MessageBuilder builder) {
+	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<?> info, MessageBuilder builder) {
 		return new CustomArgumentException(builder.build(info.sender()));
 	}
 }

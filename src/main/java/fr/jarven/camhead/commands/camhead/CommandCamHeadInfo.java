@@ -31,21 +31,29 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 			.then(literal("player").then((new PlayerArgument("player1")).executes((sender, args) -> { return infoPlayer(sender, (Player) args[0]); })));
 	}
 
-	private int infoCamera(NativeProxyCommandSender proxy, Camera camera) {
-		Messages.Resources.INFO_CAMERA
+	public static MessageBuilder infoCamera(Camera camera) {
+		return Messages.Resources.INFO_CAMERA
 			.params(camera, camera.getRoom(), camera.getLocation())
 			.replace("%supportDirection%", camera.getSupportDirection().name())
 			.replace("%animationDirection%", camera.getAnimationDirection().name())
-			.send(proxy);
+			.replace("%cameraman%", camera.getCameramanUUID().toString() + " (" + (camera.getCameraman().isPresent() ? "ok" : "unknown") + ")")
+			.replace("%seat%", camera.getSeatUUID().toString() + " (" + (camera.getCameraSeat().isPresent() ? "ok" : "unknown") + ")");
+	}
+
+	public static MessageBuilder infoScreen(Screen screen) {
+		return Messages.Resources.INFO_SCREEN
+			.params(screen, screen.getRoom(), screen.getLocation())
+			.replace("%supportDirection%", screen.getSupportDirection().name())
+			.replace("%facingDirection%", screen.getFacingDirection().name());
+	}
+
+	private int infoCamera(NativeProxyCommandSender proxy, Camera camera) {
+		infoCamera(camera).send(proxy);
 		return 1;
 	}
 
 	private int infoScreen(NativeProxyCommandSender proxy, Screen screen) {
-		Messages.Resources.INFO_SCREEN
-			.params(screen, screen.getRoom(), screen.getLocation())
-			.replace("%supportDirection%", screen.getSupportDirection().name())
-			.replace("%facingDirection%", screen.getFacingDirection().name())
-			.send(proxy);
+		infoScreen(screen).send(proxy);
 		return 1;
 	}
 
@@ -78,6 +86,7 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 			.replace("%saveTime%", saveTime)
 			.replace("%saving%", saving)
 			.send(proxy);
+
 		return 1;
 	}
 

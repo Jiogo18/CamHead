@@ -38,9 +38,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	private Room room;
 	private final String name;
 	private Location location;
-	private Location tpLocation;
 	private BlockFace supportDirection;
 	private BlockFace animationDirection;
+	private UUID cameramanUUID = null;
+	private UUID seatUUID = null;
 	private ArmorStand cameraman = null;
 	private ArmorStand seat = null;
 	private final Set<Player> players = new HashSet<>();
@@ -50,23 +51,24 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.room = room;
 		this.name = name;
 		this.location = location.getBlock().getLocation();
-		this.tpLocation = location.clone().add(0.5, -0.5, 0.5);
 		this.supportDirection = guessSupportDirection(location);
 		this.animationDirection = guessAnimationDirection(location);
 		replace();
 		CameraAnimator.addCamera(this);
 	}
 
-	private Camera(String name, Location location, BlockFace supportDirection, BlockFace animationDirection, ArmorStand cameraman, ArmorStand seat) {
+	private Camera(String name, Location location, BlockFace supportDirection, BlockFace animationDirection, UUID cameraman, UUID seat) {
 		RoomManager.assertNameStandard(name);
 		this.room = null;
 		this.name = name;
 		this.location = location.getBlock().getLocation();
-		this.tpLocation = location.clone().add(0.5, -0.5, 0.5);
 		this.supportDirection = supportDirection;
 		this.animationDirection = animationDirection;
-		this.cameraman = cameraman;
-		this.seat = seat;
+		this.cameramanUUID = cameraman;
+		this.seatUUID = seat;
+		loadChunk();
+		this.cameraman = (ArmorStand) Bukkit.getEntity(cameraman);
+		this.seat = (ArmorStand) Bukkit.getEntity(seat);
 		// replace latter when the room is set (for makeDirty)
 	}
 
@@ -81,7 +83,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public Location getTpLocation() {
-		return tpLocation;
+		return location.clone().add(0.5, -0.5, 0.5);
 	}
 
 	@Override
@@ -90,7 +92,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		if (!this.location.equals(location)) {
 			removeInternal();
 			this.location = location;
-			this.tpLocation = location.clone().add(0.5, -0.5, 0.5);
 			replace();
 			makeDirty();
 		}
@@ -102,6 +103,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		}
 		setLocation(destination);
 		return true;
+	}
+
+	private void loadChunk() {
+		location.getChunk().load();
 	}
 
 	public Room getRoom() {
@@ -144,14 +149,12 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	protected void removeInternal() {
 		CameraAnimator.removeCamera(this);
 		location.getBlock().setType(Material.AIR);
-		if (hasCameraman()) {
-			cameraman.remove();
-		}
-		cameraman = null;
-		if (hasSeat()) {
-			seat.remove();
-		}
-		seat = null;
+		getCameraman().ifPresent(ArmorStand::remove);
+		this.cameramanUUID = null;
+		this.cameraman = null;
+		getCameraSeat().ifPresent(ArmorStand::remove);
+		this.cameramanUUID = null;
+		this.seat = null;
 	}
 
 	public boolean isAtLocation(Location location) {
@@ -159,7 +162,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public boolean isAtTpLocation(Location location) {
-		return isExactLocation(this.tpLocation, location);
+		return isExactLocation(getTpLocation(), location);
 	}
 
 	public void replace() {
@@ -183,8 +186,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	public void replaceCameraman() {
 		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
-		if (cameraman == null || cameraman.isDead()) {
+
+		if (getCameraman().isEmpty()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
+			cameramanUUID = cameraman.getUniqueId();
 			cameraman.addScoreboardTag("camhead_cameraman");
 			cameraman.addScoreboardTag("camhead_camera_" + name);
 			cameraman.setCustomName("CamHead Cameraman " + name);
@@ -201,8 +206,9 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	public void replaceSeat() {
 		removePlayers();
 		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
-		if (seat == null || seat.isDead()) {
+		if (getCameraSeat().isEmpty()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
+			seatUUID = seat.getUniqueId();
 			seat.addScoreboardTag("camhead_seat");
 			seat.addScoreboardTag("camhead_camera_" + name);
 			seat.setCustomName("CamHead Seat " + name);
@@ -223,8 +229,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		ser.put("location", location);
 		ser.put("supportDirection", supportDirection.toString());
 		ser.put("animationDirection", animationDirection.toString());
-		ser.put("cameramanUUID", cameraman != null ? cameraman.getUniqueId().toString() : "");
-		ser.put("seatUUID", seat != null ? seat.getUniqueId().toString() : "");
+		ser.put("cameramanUUID", cameramanUUID.toString());
+		ser.put("seatUUID", seatUUID.toString());
 		return ser;
 	}
 
@@ -236,23 +242,23 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		BlockFace supportDirection = supportDirectionString != null ? BlockFace.valueOf(supportDirectionString) : guessSupportDirection(location);
 		BlockFace animationDirection = animationDirectionString != null ? BlockFace.valueOf(animationDirectionString) : guessAnimationDirection(location);
 		location.getWorld().loadChunk(location.getChunk()); // load to get the entity
-		String cameramanUUID = (String) args.getOrDefault("cameramanUUID", null);
-		ArmorStand cameraman = null;
+		UUID cameramanUUID = null;
 		try {
-			cameraman = (ArmorStand) Bukkit.getEntity(UUID.fromString(cameramanUUID));
+			String cameramanUUIDString = (String) args.get("cameramanUUID");
+			cameramanUUID = UUID.fromString(cameramanUUIDString);
 		} catch (Exception e) {
-			CamHead.LOGGER.warning("Failed to load cameraman for camera " + name + " at " + location);
+			CamHead.LOGGER.warning("Failed to load cameraman's UUID for camera " + name + " at " + location);
 			e.printStackTrace();
 		}
-		String seatUUID = (String) args.getOrDefault("seatUUID", null);
-		ArmorStand seat = null;
+		UUID seatUUID = null;
 		try {
-			seat = (ArmorStand) Bukkit.getEntity(UUID.fromString(seatUUID));
+			String seatUUIDString = (String) args.get("seatUUID");
+			seatUUID = UUID.fromString(seatUUIDString);
 		} catch (Exception e) {
-			CamHead.LOGGER.warning("Failed to load seat for camera " + name + " at " + location);
+			CamHead.LOGGER.warning("Failed to load seat's UUID for camera " + name + " at " + location);
 			e.printStackTrace();
 		}
-		return new Camera(name, location, supportDirection, animationDirection, cameraman, seat);
+		return new Camera(name, location, supportDirection, animationDirection, cameramanUUID, seatUUID);
 	}
 
 	protected void updateWith(Camera camera) {
@@ -365,21 +371,39 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public ArmorStand getOrCreateSeat() {
-		if (seat == null || seat.isDead()) replaceSeat();
+		if (getCameraSeat().isEmpty()) replaceSeat();
 		return seat;
 	}
 
 	public Optional<ArmorStand> getCameraSeat() {
-		return seat == null || seat.isDead() ? Optional.empty() : Optional.of(seat);
+		if (seat != null && !seat.isValid()) seat = null;
+		if (seat == null && seatUUID != null) {
+			loadChunk();
+			seat = (ArmorStand) Bukkit.getEntity(seatUUID);
+		}
+		return Optional.ofNullable(seat);
+	}
+
+	public UUID getSeatUUID() {
+		return seatUUID;
 	}
 
 	public ArmorStand getOrCreateCameraman() {
-		if (cameraman == null || cameraman.isDead()) replaceCameraman();
+		if (getCameraman().isEmpty()) replaceCameraman();
 		return cameraman;
 	}
 
 	public Optional<ArmorStand> getCameraman() {
-		return cameraman == null || cameraman.isDead() ? Optional.empty() : Optional.of(cameraman);
+		if (cameraman != null && !cameraman.isValid()) cameraman = null;
+		if (cameraman == null && cameramanUUID != null) {
+			loadChunk();
+			cameraman = (ArmorStand) Bukkit.getEntity(cameramanUUID);
+		}
+		return Optional.ofNullable(cameraman);
+	}
+
+	public UUID getCameramanUUID() {
+		return cameramanUUID;
 	}
 
 	private static void loadDirectionOffsets(EnumMap<BlockFace, Vector> directionOffsets, YamlConfiguration config, String path) {
@@ -432,11 +456,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public boolean hasCameraman() {
-		return cameraman != null && cameraman.isValid();
+		return getCameraman().isPresent();
 	}
 
 	public boolean hasSeat() {
-		return seat != null && seat.isValid();
+		return getCameraSeat().isPresent();
 	}
 
 	public boolean canHaveSpectators() {

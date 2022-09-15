@@ -154,14 +154,15 @@ public class Room implements ComponentBase, Comparable<Room> {
 
 	public Optional<Camera> getPreviousCamera(Camera camera) {
 		// From camera (expect camera) to start, then from end to camera (except camera)
-		Camera[] nextCameras = Stream
-					       .concat(this.cameras.headSet(camera).stream(), this.cameras.tailSet(camera).stream())
-					       .filter(c -> !c.equals(camera))
-					       .toArray(Camera[] ::new);
-		for (int i = nextCameras.length - 1; i >= 0; i--) {
-			Camera camera2 = nextCameras[i];
-			if (camera2.canHaveSpectators())
+		Camera[] previousCameras = Stream
+						   .concat(this.cameras.tailSet(camera).stream(), this.cameras.headSet(camera).stream())
+						   .filter(c -> !c.equals(camera))
+						   .toArray(Camera[] ::new);
+		for (int i = previousCameras.length - 1; i >= 0; i--) {
+			Camera camera2 = previousCameras[i];
+			if (camera2.canHaveSpectators()) {
 				return Optional.of(camera2);
+			}
 		}
 		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
 	}
@@ -169,14 +170,16 @@ public class Room implements ComponentBase, Comparable<Room> {
 	public Optional<Camera> getNextCamera(Camera camera) {
 		// From camera (expect camera) to end, then from start to camera (except camera)
 		Camera[] nextCameras = Stream
-					       .concat(this.cameras.headSet(camera).stream(), this.cameras.tailSet(camera).stream())
+					       .concat(this.cameras.tailSet(camera).stream(), this.cameras.headSet(camera).stream())
 					       .filter(c -> !c.equals(camera))
 					       .toArray(Camera[] ::new);
 		for (int i = 0; i < nextCameras.length; i++) {
 			Camera camera2 = nextCameras[i];
-			if (camera2.canHaveSpectators())
+			if (camera2.canHaveSpectators()) {
 				return Optional.of(camera2);
+			}
 		}
+
 		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
 	}
 

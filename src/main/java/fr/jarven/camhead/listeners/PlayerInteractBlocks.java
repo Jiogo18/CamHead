@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import fr.jarven.camhead.CamHead;
+import fr.jarven.camhead.commands.camhead.CommandCamHeadInfo;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadSpectate;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.ComponentBase;
@@ -221,21 +222,13 @@ public class PlayerInteractBlocks implements Listener {
 		String removeCommand;
 		if (component instanceof Camera) {
 			Camera camera = (Camera) component;
-			builder = new ComponentBuilder(Messages.Resources.INFO_CAMERA
-							       .params(camera, camera.getLocation(), camera.getRoom())
-							       .replace("%supportDirection%", camera.getSupportDirection().name())
-							       .replace("%animationDirection%", camera.getAnimationDirection().name())
-							       .build(player));
+			builder = new ComponentBuilder(CommandCamHeadInfo.infoCamera(camera).build(player));
 			removeCommand = "/camhead remove camera " + ((Camera) component).getRoom().getName() + " " + component.getName();
 			removeButton = Messages.Resources.REMOVE_CAMERA_BREAK_BUTTON;
 			removeButtonHover = Messages.Resources.REMOVE_CAMERA_BREAK_HOVER;
 		} else if (component instanceof Screen) {
 			Screen screen = (Screen) component;
-			builder = new ComponentBuilder(Messages.Resources.INFO_SCREEN
-							       .params(screen, screen.getLocation(), screen.getRoom())
-							       .replace("%supportDirection%", screen.getSupportDirection().name())
-							       .replace("%facingDirection%", screen.getFacingDirection().name())
-							       .build(player));
+			builder = new ComponentBuilder(CommandCamHeadInfo.infoScreen(screen).build(player));
 			removeCommand = "/camhead remove screen " + ((Screen) component).getRoom().getName() + " " + component.getName();
 			removeButton = Messages.Resources.REMOVE_SCREEN_BREAK_BUTTON;
 			removeButtonHover = Messages.Resources.REMOVE_SCREEN_BREAK_HOVER;

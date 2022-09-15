@@ -5,7 +5,9 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Optional;
 
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.components.Camera;
@@ -19,12 +21,12 @@ public class CommandCamHeadAdd extends SubCommandBuider {
 		return (LiteralArgument) literal("add")
 			.then(literal("camera")
 					.then(roomArgument()
-							.then(executeWithRequiredLocation(stringArgument("camera"), 2, (sender, args, location) -> addCamera(sender, getRoom(args, 0), args[1].toString(), location)))))
+							.then(executeWithRequiredLocation(new StringArgument("camera_name").replaceSuggestions(cameraSuggestions), 2, (sender, args, location) -> addCamera(sender, getRoom(args, 0), args[1].toString(), location)))))
 			.then(literal("screen")
 					.then(roomArgument()
-							.then(executeWithRequiredLocation(stringArgument("screen"), 2, (sender, args, location) -> addScreen(sender, getRoom(args, 0), args[1].toString(), location)))))
+							.then(executeWithRequiredLocation(stringArgument("screen_name").replaceSuggestions(screenSuggestions), 2, (sender, args, location) -> addScreen(sender, getRoom(args, 0), args[1].toString(), location)))))
 			.then(literal("room")
-					.then(executeWithRequiredLocation(stringArgument("room"), 1, (sender, args, location) -> addRoom(sender, args[0].toString(), location))));
+					.then(executeWithRequiredLocation(stringArgument("room_name"), 1, (sender, args, location) -> addRoom(sender, args[0].toString(), location))));
 	}
 
 	private int addCamera(CommandSender sender, Room room, String cameraName, Location location) {
@@ -76,5 +78,33 @@ public class CommandCamHeadAdd extends SubCommandBuider {
 		Messages.Resources.ROOM_ADD_SUCCESS.params(room).send(sender);
 		CamHead.LOGGER.info("Room " + room.getName() + " created " + getLocationString(room.getLocation()));
 		return 1;
+	}
+
+	private ArgumentSuggestions cameraSuggestions = (info, builder) -> {
+		Room room = (Room) info.previousArgs()[0];
+		if (room != null) builder.suggest(getNextCameraName(room));
+		return builder.buildFuture();
+	};
+
+	private ArgumentSuggestions screenSuggestions = (info, builder) -> {
+		Room room = (Room) info.previousArgs()[0];
+		if (room != null) builder.suggest(getNextScreenName(room));
+		return builder.buildFuture();
+	};
+
+	private static String getNextCameraName(Room room) {
+		int i = 1;
+		while (room.getCamera("camera" + i).isPresent()) {
+			i++;
+		}
+		return "camera" + i;
+	}
+
+	private static String getNextScreenName(Room room) {
+		int i = 1;
+		while (room.getScreen("screen" + i).isPresent()) {
+			i++;
+		}
+		return "screen" + i;
 	}
 }
