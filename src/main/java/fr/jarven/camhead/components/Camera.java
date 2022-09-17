@@ -25,6 +25,7 @@ import java.util.UUID;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.CameraAnimator;
 import fr.jarven.camhead.utils.YawBlockFace;
+import net.md_5.bungee.api.ChatColor;
 
 public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationSerializable {
 	private static boolean replaceOnReload = false;
@@ -66,8 +67,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.animationDirection = animationDirection;
 		this.cameramanUUID = cameraman;
 		this.seatUUID = seat;
-		this.cameraman = (ArmorStand) Bukkit.getEntity(cameraman);
-		this.seat = (ArmorStand) Bukkit.getEntity(seat);
+		getCameraman();
+		getCameraSeat();
 		// replace latter when the room is set (for makeDirty)
 	}
 
@@ -186,7 +187,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
 
-		loadChunk();
 		if (getCameraman(true).isEmpty()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameramanUUID = cameraman.getUniqueId();
@@ -207,7 +207,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		removePlayers();
 		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
 
-		loadChunk();
 		if (getCameraSeat(true).isEmpty()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
 			seatUUID = seat.getUniqueId();
@@ -243,7 +242,6 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		String animationDirectionString = (String) args.get("animationDirection");
 		BlockFace supportDirection = supportDirectionString != null ? BlockFace.valueOf(supportDirectionString) : guessSupportDirection(location);
 		BlockFace animationDirection = animationDirectionString != null ? BlockFace.valueOf(animationDirectionString) : guessAnimationDirection(location);
-		location.getWorld().loadChunk(location.getChunk()); // load to get the entity
 		UUID cameramanUUID = null;
 		try {
 			String cameramanUUIDString = (String) args.get("cameramanUUID");
@@ -372,16 +370,23 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		return YawBlockFace.blockFaceToYaw(animationDirection);
 	}
 
+	private boolean isEntityLoaded(ArmorStand entity) {
+		return entity != null && entity.isValid() && !entity.isDead();
+	}
+
 	public ArmorStand getOrCreateSeat() {
 		if (getCameraSeat(true).isEmpty()) replaceSeat();
 		return seat;
 	}
 
 	public Optional<ArmorStand> getCameraSeat(boolean loadChunk) {
-		if (seat != null && (!seat.isValid() || seat.isDead())) seat = null;
-		if (seat == null && seatUUID != null) {
-			if (loadChunk) loadChunk();
-			seat = (ArmorStand) Bukkit.getEntity(seatUUID);
+		if (!isEntityLoaded(seat)) {
+			if (seatUUID != null) {
+				if (loadChunk) loadChunk();
+				seat = (ArmorStand) Bukkit.getEntity(seatUUID);
+			} else {
+				seat = null;
+			}
 		}
 		return Optional.ofNullable(seat);
 	}
@@ -400,10 +405,13 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public Optional<ArmorStand> getCameraman(boolean loadChunk) {
-		if (cameraman != null && (!cameraman.isValid() || cameraman.isDead())) cameraman = null;
-		if (cameraman == null && cameramanUUID != null) {
-			if (loadChunk) loadChunk();
-			cameraman = (ArmorStand) Bukkit.getEntity(cameramanUUID);
+		if (!isEntityLoaded(cameraman)) {
+			if (cameramanUUID != null) {
+				if (loadChunk) loadChunk();
+				cameraman = (ArmorStand) Bukkit.getEntity(cameramanUUID);
+			} else {
+				cameraman = null;
+			}
 		}
 		return Optional.ofNullable(cameraman);
 	}
@@ -479,9 +487,15 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 
 	public boolean addPlayer(Player player) {
 		if (!hasSeat()) return false;
-		if (!this.seat.isValid()) return false;
+		if (!isEntityLoaded(seat)) return false;
+		double distance = player.getWorld() != seat.getWorld() ? 1000 : player.getLocation().distance(seat.getLocation());
+		if (distance > 100) {
+			player.sendMessage(ChatColor.RED + "You are too far away to watch this camera");
+			return false;
+		}
+		if (!this.seat.addPassenger(player)) return false;
+
 		this.players.add(player);
-		this.seat.addPassenger(player);
 		return true;
 	}
 

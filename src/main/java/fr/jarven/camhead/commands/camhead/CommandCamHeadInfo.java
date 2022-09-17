@@ -1,12 +1,15 @@
 package fr.jarven.camhead.commands.camhead;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.UUID;
 
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
@@ -31,13 +34,24 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 			.then(literal("player").then((new PlayerArgument("player1")).executes((sender, args) -> { return infoPlayer(sender, (Player) args[0]); })));
 	}
 
+	public static String getArmorStandInfo(UUID uuid, Optional<ArmorStand> armorStand) {
+		String info = "null";
+		if (armorStand.isPresent()) {
+			ArmorStand as = armorStand.get();
+			info = (as.isValid() ? "valid" : "invalid") + " " + (as.isDead() ? "dead" : "alive");
+		}
+
+		String uuidString = uuid == null ? "no uuid" : uuid.toString();
+		return info + " (" + uuidString + ")";
+	}
+
 	public static MessageBuilder infoCamera(Camera camera) {
 		return Messages.Resources.INFO_CAMERA
 			.params(camera, camera.getRoom(), camera.getLocation())
 			.replace("%supportDirection%", camera.getSupportDirection().name())
 			.replace("%animationDirection%", camera.getAnimationDirection().name())
-			.replace("%cameraman%", camera.getCameramanUUID().toString() + " (" + (camera.getCameraman(true).isPresent() ? "ok" : "unknown") + ")")
-			.replace("%seat%", camera.getSeatUUID().toString() + " (" + (camera.getCameraSeat(true).isPresent() ? "ok" : "unknown") + ")");
+			.replace("%cameraman%", getArmorStandInfo(camera.getCameramanUUID(), camera.getCameraman(true)))
+			.replace("%seat%", getArmorStandInfo(camera.getSeatUUID(), camera.getCameraSeat(true)));
 	}
 
 	public static MessageBuilder infoScreen(Screen screen) {
