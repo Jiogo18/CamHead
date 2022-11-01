@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.jarven.camhead.CamHead;
@@ -259,8 +260,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 		Set<String> screensName = config.contains("screens") ? ((MemorySection) config.get("screens")).getKeys(false) : Collections.emptySet();
 
 		// Remove cameras and screens that were removed from the config
-		List<Camera> camerasToRemove = previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).toList();
-		List<Screen> screensToRemove = previousScreens.stream().filter(s -> !screensName.contains(s.getName())).toList();
+		List<Camera> camerasToRemove = previousCameras.stream().filter(c -> !camerasName.contains(c.getName())).collect(Collectors.toList());
+		List<Screen> screensToRemove = previousScreens.stream().filter(s -> !screensName.contains(s.getName())).collect(Collectors.toList());
 		this.cameras.removeAll(camerasToRemove);
 		this.screens.removeAll(screensToRemove);
 		camerasToRemove.forEach(Camera::removeInternal);
@@ -272,7 +273,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 			try {
 				Camera camera = (Camera) config.get("cameras." + cameraName, Camera.class);
 				Optional<Camera> currentCamera = getCamera(camera.getName());
-				if (currentCamera.isEmpty()) {
+				if (!currentCamera.isPresent()) {
 					camera.setRoom(this);
 					this.cameras.add(camera);
 				} else {
@@ -287,7 +288,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 			try {
 				Screen screen = (Screen) config.get("screens." + screenName, Screen.class);
 				Optional<Screen> currentScreen = getScreen(screen.getName());
-				if (currentScreen.isEmpty()) {
+				if (!currentScreen.isPresent()) {
 					screen.setRoom(this);
 					this.screens.add(screen);
 				} else {

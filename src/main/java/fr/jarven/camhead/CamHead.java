@@ -10,8 +10,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIConfig;
 import fr.jarven.camhead.commands.CommandTools;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.RoomManager;
@@ -39,7 +37,6 @@ public class CamHead extends JavaPlugin {
 		if (!dataFolder.toFile().exists()) {
 			dataFolder.toFile().mkdir();
 		}
-		if (!CommandAPI.isLoaded()) CommandAPI.onLoad(new CommandAPIConfig());
 		ConfigurationSerialization.registerClass(Camera.class);
 		ConfigurationSerialization.registerClass(Screen.class);
 	}
@@ -53,7 +50,7 @@ public class CamHead extends JavaPlugin {
 			manager = new RoomManager();
 			spectatorManager = new SpectatorManager();
 			loadConfig();
-			CommandTools.onEnable(this);
+			CommandTools.onEnable();
 			CameraAnimator.onEnable(this);
 			registerListeners();
 			LOGGER.info("CamHead enabled");

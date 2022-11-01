@@ -3,33 +3,25 @@ package fr.jarven.camhead.commands;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.RegisteredCommand;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LocationType;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
-import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.arguments.CameraArgument;
 import fr.jarven.camhead.commands.arguments.RoomArgument;
 import fr.jarven.camhead.commands.arguments.ScreenArgument;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public abstract class CommandTools {
 	protected static LiteralArgument literal(String commandName) {
@@ -125,36 +117,15 @@ public abstract class CommandTools {
 			.replace("%pitch%", String.valueOf(location.getPitch()));
 	}
 
-	public static BaseComponent[] createBaseComponent(String string) {
-		return new ComponentBuilder(string).create();
-	}
-
 	protected String roundIfAboveTen(double n) {
 		return n >= 10 ? Integer.toString((int) Math.round(n)) : Double.toString(Math.round(n * 10) / 10.0);
 	}
 
-	private static void register(CommandBuilder command) {
-		command.getCommandTree().register();
-	}
-
-	private static void registerAllCommandTrees() {
-		register(new CommandCamHead());
-	}
-
-	public static void onEnable(JavaPlugin plugin) {
-		CommandAPI.onEnable(plugin);
-		registerAllCommandTrees();
+	public static void onEnable() {
+		new CommandCamHead().getCommandTree().register();
 	}
 
 	public static void onDisable() {
-		if (!CommandAPI.isLoaded()) {
-			CamHead.LOGGER.severe("CommandAPI is not loaded, cannot disable. You must restart your server. (This can happen if another plugin calls CommandAPI.onDisable())");
-		}
-		List<RegisteredCommand> commands = CommandAPI.getRegisteredCommands();
-		Set<String> commandsName = commands.stream().map(c -> c.commandName()).collect(Collectors.toSet());
-		CamHead.LOGGER.info("Unregistering " + commandsName.size() + " commands");
-		for (String commandName : commandsName) {
-			CommandAPI.unregister(commandName);
-		}
+		CommandAPI.unregister("camhead");
 	}
 }

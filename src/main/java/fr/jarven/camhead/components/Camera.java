@@ -187,7 +187,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
 
-		if (getCameraman(true).isEmpty()) {
+		if (!getCameraman(true).isPresent()) {
 			cameraman = cameramanLocation.getWorld().spawn(cameramanLocation, ArmorStand.class);
 			cameramanUUID = cameraman.getUniqueId();
 			cameraman.addScoreboardTag("camhead_cameraman");
@@ -207,7 +207,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		removePlayers();
 		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
 
-		if (getCameraSeat(true).isEmpty()) {
+		if (!getCameraSeat(true).isPresent()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
 			seatUUID = seat.getUniqueId();
 			seat.addScoreboardTag("camhead_seat");
@@ -375,7 +375,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public ArmorStand getOrCreateSeat() {
-		if (getCameraSeat(true).isEmpty()) replaceSeat();
+		if (!getCameraSeat(true).isPresent()) replaceSeat();
 		return seat;
 	}
 
@@ -400,7 +400,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public ArmorStand getOrCreateCameraman() {
-		if (getCameraman(true).isEmpty()) replaceCameraman();
+		if (!getCameraman(true).isPresent()) replaceCameraman();
 		return cameraman;
 	}
 

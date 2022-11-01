@@ -28,7 +28,7 @@ import java.util.UUID;
  * @url https://github.com/deanveloper/SkullCreator
  * Downloaded and motified by Jarven on 30/07/2022 for Wall skulls.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings("all")
 public class SkullCreator {
 
 	private SkullCreator() {}

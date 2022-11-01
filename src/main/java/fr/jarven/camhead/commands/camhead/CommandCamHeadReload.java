@@ -13,7 +13,7 @@ public class CommandCamHeadReload extends SubCommandBuider {
 			.then(roomArgument().executes((sender, args) -> {
 				Room room = getRoom(args, 0);
 				CamHead.manager.reload(room);
-				room = CamHead.manager.getRoom(room.getName()).orElseThrow();
+				room = CamHead.manager.getRoom(room.getName()).orElseThrow(() -> new IllegalStateException("Room not found"));
 				Messages.Resources.RELOAD_ROOM_SUCCESS.params(room).send(sender);
 			}))
 			.executes((sender, args) -> {

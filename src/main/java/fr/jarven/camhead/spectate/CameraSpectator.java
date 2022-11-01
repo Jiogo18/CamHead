@@ -5,6 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -91,7 +92,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setCanPickupItems(false);
 		player.setInvulnerable(true);
 		for (Player other : Bukkit.getOnlinePlayers()) {
-			if (other.getUniqueId().equals(player.getUniqueId())) continue;
 			other.hidePlayer(CamHead.getInstance(), player);
 			// is hidden until player leaves the room or other deco/reco
 		}
@@ -155,6 +155,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		private final boolean wasCollidable;
 		private final boolean wasCanPickupItems;
 		private final boolean wasInvulnerable;
+		private final ItemStack[] inventory;
 
 		private PlayerState(Player player) {
 			this.player = player;
@@ -168,6 +169,8 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.wasCollidable = player.isCollidable();
 			this.wasCanPickupItems = player.getCanPickupItems();
 			this.wasInvulnerable = player.isInvulnerable();
+			this.inventory = player.getInventory().getContents().clone();
+			player.getInventory().clear();
 		}
 
 		private void restore() {
@@ -182,9 +185,9 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.setCanPickupItems(wasCanPickupItems);
 			player.setInvulnerable(wasInvulnerable);
 			for (Player other : Bukkit.getOnlinePlayers()) {
-				if (other.getUniqueId().equals(player.getUniqueId())) continue;
 				other.showPlayer(CamHead.getInstance(), player);
 			}
+			player.getInventory().setContents(inventory);
 		}
 	}
 }

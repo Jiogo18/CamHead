@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.jarven.camhead.CamHead;
@@ -55,9 +56,9 @@ public class RoomManager {
 						}
 					})
 					.filter(room -> room != null)
-					.toList();
+					.collect(Collectors.toList());
 
-			List<Room> roomsToRemove = rooms.stream().filter(room -> !newRooms.contains(room)).toList();
+			List<Room> roomsToRemove = rooms.stream().filter(room -> !newRooms.contains(room)).collect(Collectors.toList());
 			roomsToRemove.forEach(this::removeRoomDontDeleteFile);
 			newRooms.forEach(rooms::add); // Add without dirty
 		}
