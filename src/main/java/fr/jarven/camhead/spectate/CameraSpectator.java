@@ -98,6 +98,8 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);
 		}
+		player.getInventory().clear();
+		player.addScoreboardTag("CamHeadSpectator");
 		leaving = false;
 		if (camera.addPlayer(player)) {
 			return new EnterResult(camera, EnterResultType.SUCCESS_ENTER);
@@ -170,7 +172,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.wasCanPickupItems = player.getCanPickupItems();
 			this.wasInvulnerable = player.isInvulnerable();
 			this.inventory = player.getInventory().getContents().clone();
-			player.getInventory().clear();
 		}
 
 		private void restore() {
@@ -188,6 +189,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 				other.showPlayer(CamHead.getInstance(), player);
 			}
 			player.getInventory().setContents(inventory);
+			player.removeScoreboardTag("CamHeadSpectator");
 		}
 	}
 }
