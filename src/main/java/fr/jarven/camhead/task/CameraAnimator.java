@@ -105,7 +105,7 @@ public class CameraAnimator {
 			}
 			angle = (angleMin + angleMax) / 2;
 			direction = 1;
-			camera.getCameraman().ifPresent(cameraman -> cameramanYaw = cameraman.getLocation().getYaw());
+			cameramanYaw = camera.getSupportYaw();
 		}
 
 		private void animate() {

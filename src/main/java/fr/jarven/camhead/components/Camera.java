@@ -356,7 +356,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		return animationDirection;
 	}
 
-	private float getSupportYaw() {
+	public float getSupportYaw() {
 		Vector direction = supportDirection.getDirection();
 		if (direction.getY() != 0) {
 			float animationYaw = getAnimationYaw();
