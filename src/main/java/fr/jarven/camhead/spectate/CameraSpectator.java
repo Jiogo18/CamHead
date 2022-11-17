@@ -1,6 +1,5 @@
 package fr.jarven.camhead.spectate;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -91,10 +90,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setCollidable(false);
 		player.setCanPickupItems(false);
 		player.setInvulnerable(true);
-		for (Player other : Bukkit.getOnlinePlayers()) {
-			other.hidePlayer(CamHead.getInstance(), player);
-			// is hidden until player leaves the room or other deco/reco
-		}
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);
 		}
@@ -185,9 +180,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.setCollidable(wasCollidable);
 			player.setCanPickupItems(wasCanPickupItems);
 			player.setInvulnerable(wasInvulnerable);
-			for (Player other : Bukkit.getOnlinePlayers()) {
-				other.showPlayer(CamHead.getInstance(), player);
-			}
 			player.getInventory().setContents(inventory);
 			player.removeScoreboardTag("CamHeadSpectator");
 		}

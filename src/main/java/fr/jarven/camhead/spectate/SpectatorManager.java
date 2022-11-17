@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
@@ -116,13 +115,6 @@ public class SpectatorManager {
 		allowEnterByCamera = config.getBoolean("allowEnterByCamera", false);
 		adminClickToRemove = config.getBoolean("adminClickToRemove", true);
 		CameraSpectator.GAMEMODE = GameMode.valueOf(config.getString("camera.gamemode", "SPECTATOR"));
-	}
-
-	public void onPlayerConnect(Player player) {
-		// Hide spectators from the player
-		for (CameraSpectator spectator : this.spectators.values()) {
-			player.hidePlayer(CamHead.getInstance(), spectator.getPlayer());
-		}
 	}
 
 	public boolean isAllowSneakToLeave() {

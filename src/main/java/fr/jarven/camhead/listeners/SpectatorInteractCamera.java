@@ -10,7 +10,6 @@ import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -164,13 +163,5 @@ public class SpectatorInteractCamera implements Listener {
 		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getPlayer());
 		if (spectator == null || spectator.isLeaving()) return;
 		event.setCancelled(true);
-	}
-
-	/**
-	 * Reconnect => hide spectators from player
-	 */
-	@EventHandler
-	public void onConnect(PlayerJoinEvent event) {
-		CamHead.spectatorManager.onPlayerConnect(event.getPlayer());
 	}
 }
