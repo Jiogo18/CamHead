@@ -113,9 +113,9 @@ public class PlayerInteractBlocks implements Listener {
 				Messages.Resources.REMOVE_CAMERA_BREAK_PERMISSION.sendFailure(player);
 			} else if (component instanceof Screen) {
 				Messages.Resources.REMOVE_SCREEN_BREAK_PERMISSION.sendFailure(player);
+			} else {
+				throw new IllegalStateException("Unknow component " + component);
 			}
-		} else {
-			throw new IllegalStateException("Unknow component " + component);
 		}
 	}
 
