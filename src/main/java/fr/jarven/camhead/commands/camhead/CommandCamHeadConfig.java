@@ -23,10 +23,12 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 					.then(roomArgument()
 							.then(literal("allow-enter")
 									.then(new BooleanArgument("allow")
-											.executesNative(CommandCamHeadConfig::allowEnterRoom)))
+											.executesNative(CommandCamHeadConfig::allowEnterRoom))
+									.executesNative((proxy, args) -> { Room room = (Room) args[0]; return room.canEnter() ? 1 : 0; }))
 							.then(literal("allow-leave")
 									.then(new BooleanArgument("allow")
-											.executesNative(CommandCamHeadConfig::allowLeaveRoom)))));
+											.executesNative(CommandCamHeadConfig::allowLeaveRoom))
+									.executesNative((proxy, args) -> { Room room = (Room) args[0]; return room.canLeave() ? 1 : 0; }))));
 	}
 
 	public static int allowEnterGlobal(NativeProxyCommandSender proxy, Object[] args) {
