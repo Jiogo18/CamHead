@@ -3,6 +3,8 @@ package fr.jarven.camhead.commands.camhead;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.CamHead;
@@ -57,7 +59,7 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 				builder = Messages.Resources.SPECTATE_ENTER_FAILED_UNKNOWN.params(result.getCamera());
 				break;
 			case NO_CAMERAS:
-				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_CAMERAS.params(result.getCamera().getRoom());
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_CAMERAS.params(result.getRoom());
 				break;
 			case NO_PERMISSION:
 				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_PERMISSION.params(result.getCamera());
@@ -66,7 +68,7 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 				builder = Messages.Resources.SPECTATE_ENTER_FAILED_NO_SEAT.params(result.getCamera());
 				break;
 			case ROOM_FULL:
-				builder = Messages.Resources.SPECTATE_ENTER_FAILED_ROOM_FULL.params(result.getCamera().getRoom());
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_ROOM_FULL.params(result.getRoom());
 				break;
 		}
 
@@ -80,12 +82,12 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 		return status;
 	}
 
-	public static int spectateCamera(CommandSender sender, Player player, Camera camera) {
+	public static int spectateCamera(CommandSender sender, @Nonnull Player player, @Nonnull Camera camera) {
 		EnterResult result = CamHead.spectatorManager.enter(player, camera);
 		return sendMessageForEnterResult(sender, result, null);
 	}
 
-	public static int spectateRoom(CommandSender sender, Player player, Room room) {
+	public static int spectateRoom(CommandSender sender, @Nonnull Player player, @Nonnull Room room) {
 		EnterResult result = CamHead.spectatorManager.enter(player, room);
 		return sendMessageForEnterResult(sender, result, null);
 	}

@@ -25,7 +25,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2022-09-15";
+	private static final String LANGUAGE_VERSION = "2023-01-14";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -122,6 +122,15 @@ public class Messages {
 		SPECTATE_LEAVE_FAILED_NO_PERMISSION("camhead.spectate.leave.failed.no_permission"),
 
 		TELEPORT_NOT_AN_ENTITY("camhead.teleport.notanentity"),
+
+		CONFIG_GLOBAL_ENTER_ENABLED("camhead.config.global.enter.enabled"),
+		CONFIG_GLOBAL_LEAVE_ENABLED("camhead.config.global.leave.enabled"),
+		CONFIG_GLOBAL_ENTER_DISABLED("camhead.config.global.enter.disabled"),
+		CONFIG_GLOBAL_LEAVE_DISABLED("camhead.config.global.leave.disabled"),
+		CONFIG_ROOM_ENTER_ENABLED("camhead.config.room.enter.enabled"),
+		CONFIG_ROOM_LEAVE_ENABLED("camhead.config.room.leave.enabled"),
+		CONFIG_ROOM_ENTER_DISABLED("camhead.config.room.enter.disabled"),
+		CONFIG_ROOM_LEAVE_DISABLED("camhead.config.room.leave.disabled"),
 		;
 
 		private String key;

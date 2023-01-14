@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
+
 import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -68,16 +70,28 @@ public abstract class CommandTools {
 		return generateRoomSelector(roomArgument -> roomArgument.executesNative((proxy, args) -> { return callback.apply(proxy, getRoom(args, argIndex)); }));
 	}
 
-	protected Camera getCamera(Object[] args, int argIndex) {
-		return CameraArgument.getCamera(args, argIndex);
+	protected @Nonnull Camera getCamera(Object[] args, int argIndex) {
+		Camera camera = CameraArgument.getCamera(args, argIndex);
+		if (camera == null) {
+			throw new IllegalArgumentException("Camera not found");
+		}
+		return camera;
 	}
 
-	protected Screen getScreen(Object[] args, int argIndex) {
-		return ScreenArgument.getScreen(args, argIndex);
+	protected @Nonnull Screen getScreen(Object[] args, int argIndex) {
+		Screen screen = ScreenArgument.getScreen(args, argIndex);
+		if (screen == null) {
+			throw new IllegalArgumentException("Screen not found");
+		}
+		return screen;
 	}
 
-	protected Room getRoom(Object[] args, int argIndex) {
-		return RoomArgument.getRoom(args, argIndex);
+	protected @Nonnull Room getRoom(Object[] args, int argIndex) {
+		Room room = RoomArgument.getRoom(args, argIndex);
+		if (room == null) {
+			throw new IllegalArgumentException("Room not found");
+		}
+		return room;
 	}
 
 	@FunctionalInterface

@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2022-09-15.
+# Modifié par Jarven le 2023-01-14.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-15"
+version.revision: "2023-01-14"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -31,6 +31,8 @@ camhead.info.room.main: |-
   - Écrans : %screenCount%
   - Limite de joueurs : %playerLimit%
   - Sauvegarde : %saveTime%
+  - Peut entrer : %allowEnter%
+  - Peut sortir : %allowLeave%
   %saving%
 camhead.info.room.savetime.datetime: '%saveTime% (%timezone%)'
 camhead.info.room.savetime.never: Jamais
@@ -128,3 +130,12 @@ camhead.spectate.leave.failed.not_spectating: Pas dans une caméra.
 camhead.spectate.leave.failed.no_permission: "Échec de la sortie de la vue caméra : vous n'avez pas la permission."
 
 camhead.teleport.notanentity: '%name% n''est pas une entité.'
+
+camhead.config.global.enter.enabled: 'Vous pouvez maintenant entrer dans n''importe quelle pièce.'
+camhead.config.global.leave.enabled: 'Vous pouvez maintenant quitter n''importe quelle pièce.'
+camhead.config.global.enter.disabled: 'Vous ne pouvez plus entrer dans n''importe quelle pièce.'
+camhead.config.global.leave.disabled: 'Vous ne pouvez plus quitter n''importe quelle pièce.'
+camhead.config.room.enter.enabled: 'Vous pouvez maintenant entrer dans la pièce %room%.'
+camhead.config.room.leave.enabled: 'Vous pouvez maintenant quitter la pièce %room%.'
+camhead.config.room.enter.disabled: 'Vous ne pouvez plus entrer dans la pièce %room%.'
+camhead.config.room.leave.disabled: 'Vous ne pouvez plus quitter la pièce %room%.'

@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 
 import dev.jorel.commandapi.CommandTree;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadAdd;
+import fr.jarven.camhead.commands.camhead.CommandCamHeadConfig;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadInfo;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadLeave;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadList;
@@ -25,6 +26,7 @@ public class CommandCamHead extends CommandBuilder {
 		Predicate<CommandSender> requireAdminOrMaker = s -> s != null && (s.hasPermission("camhead.maker") || s.hasPermission("camhead.admin"));
 		return new CommandTree("camhead")
 			.then(new CommandCamHeadAdd().getArgumentTree().withRequirement(requireMaker))
+			.then(new CommandCamHeadConfig().getArgumentTree().withRequirement(requireAdmin))
 			.then(new CommandCamHeadInfo().getArgumentTree().withRequirement(requireAdminOrMaker))
 			.then(new CommandCamHeadLeave().getArgumentTree().withRequirement(requireAdmin))
 			.then(new CommandCamHeadList().getArgumentTree().withRequirement(requireAdminOrMaker))

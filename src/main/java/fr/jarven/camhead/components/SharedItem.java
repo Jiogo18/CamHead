@@ -6,6 +6,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import fr.jarven.camhead.lib.skullcreator.SkullCreator;
+
 /**
  * A shared item defines an item created for armor stands.
  * It stores the informations of the config file.
@@ -13,17 +15,20 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class SharedItem {
 	private final Material material;
 	private final int customModelData;
+	private final String headTextureBase64;
 
-	public SharedItem(Material material, int customModelData) {
+	public SharedItem(Material material, int customModelData, String headTextureBase64) {
 		this.material = material;
 		this.customModelData = customModelData;
+		this.headTextureBase64 = headTextureBase64;
 	}
 
 	public static SharedItem fromConfig(YamlConfiguration config, String path) {
 		if (config.get(path + ".material") == null) return null;
 		Material material = Material.valueOf(config.getString(path + ".material"));
 		int customModelData = config.getInt(path + ".custom_model_data", 0);
-		return new SharedItem(material, customModelData);
+		String headTextureBase64 = config.getString(path + ".headTextureBase64", null);
+		return new SharedItem(material, customModelData, headTextureBase64);
 	}
 
 	public static void loadSharedItems(SharedItem[] items, YamlConfiguration config, String path) {
@@ -36,6 +41,9 @@ public class SharedItem {
 	}
 
 	public ItemStack createItem() {
+		if (headTextureBase64 != null) {
+			return SkullCreator.itemFromBase64(headTextureBase64);
+		}
 		ItemStack item = new ItemStack(material);
 		item.setAmount(1);
 		if (customModelData != 0) {

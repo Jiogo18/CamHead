@@ -15,6 +15,9 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.SaveTask;
 
@@ -28,6 +31,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 	private final SortedSet<Screen> screens;
 	private YamlConfiguration config;
 	private int playerLimit = 0;
+	private boolean allowEnter = true;
+	private boolean allowLeave = true;
 
 	public Room(String name, Location location) {
 		this.name = name;
@@ -118,6 +123,24 @@ public class Room implements ComponentBase, Comparable<Room> {
 		}
 	}
 
+	public boolean canEnter() {
+		return allowEnter;
+	}
+
+	public void setAllowEnter(boolean allowEnter) {
+		this.allowEnter = allowEnter;
+		makeDirty();
+	}
+
+	public boolean canLeave() {
+		return allowLeave;
+	}
+
+	public void setAllowLeave(boolean allowLeave) {
+		this.allowLeave = allowLeave;
+		makeDirty();
+	}
+
 	public boolean teleport(Location destination) {
 		if (location.equals(destination)) {
 			return false;
@@ -153,7 +176,7 @@ public class Room implements ComponentBase, Comparable<Room> {
 		return name.hashCode();
 	}
 
-	public Optional<Camera> getPreviousCamera(Camera camera) {
+	public @Nullable Camera getPreviousCamera(@Nonnull Camera camera) {
 		// From camera (expect camera) to start, then from end to camera (except camera)
 		Camera[] previousCameras = Stream
 						   .concat(this.cameras.tailSet(camera).stream(), this.cameras.headSet(camera).stream())
@@ -162,13 +185,13 @@ public class Room implements ComponentBase, Comparable<Room> {
 		for (int i = previousCameras.length - 1; i >= 0; i--) {
 			Camera camera2 = previousCameras[i];
 			if (camera2.canHaveSpectators()) {
-				return Optional.of(camera2);
+				return camera2;
 			}
 		}
-		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
+		return camera.canHaveSpectators() ? camera : null;
 	}
 
-	public Optional<Camera> getNextCamera(Camera camera) {
+	public @Nullable Camera getNextCamera(@Nonnull Camera camera) {
 		// From camera (expect camera) to end, then from start to camera (except camera)
 		Camera[] nextCameras = Stream
 					       .concat(this.cameras.tailSet(camera).stream(), this.cameras.headSet(camera).stream())
@@ -177,11 +200,11 @@ public class Room implements ComponentBase, Comparable<Room> {
 		for (int i = 0; i < nextCameras.length; i++) {
 			Camera camera2 = nextCameras[i];
 			if (camera2.canHaveSpectators()) {
-				return Optional.of(camera2);
+				return camera2;
 			}
 		}
 
-		return camera.canHaveSpectators() ? Optional.of(camera) : Optional.empty();
+		return camera.canHaveSpectators() ? camera : null;
 	}
 
 	@Override
@@ -225,6 +248,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 		config.set("screenId", screenId);
 		config.set("saveTimestamp", saveTimestamp);
 		config.set("playerLimit", playerLimit);
+		config.set("allowEnter", allowEnter);
+		config.set("allowLeave", allowLeave);
 		for (Camera camera : cameras) {
 			config.set("cameras." + camera.getName(), camera);
 		}
@@ -253,6 +278,8 @@ public class Room implements ComponentBase, Comparable<Room> {
 		this.screenId = config.getInt("screenId");
 		this.saveTimestamp = config.getLong("saveTimestamp");
 		this.playerLimit = config.getInt("playerLimit", CamHead.manager.getDefaultPlayerLimit());
+		this.allowEnter = config.getBoolean("allowEnter", true);
+		this.allowLeave = config.getBoolean("allowLeave", true);
 
 		SortedSet<Camera> previousCameras = new TreeSet<>(this.cameras);
 		SortedSet<Screen> previousScreens = new TreeSet<>(this.screens);

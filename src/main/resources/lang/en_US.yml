@@ -1,8 +1,8 @@
-# Edited by Jarven on 2022-09-15.
+# Edited by Jarven on 2023-01-14.
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2022-09-15"
+version.revision: "2023-01-14"
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.
@@ -31,6 +31,8 @@ camhead.info.room.main: |-
   - Screens: %screenCount%
   - Player Limit: %playerLimit%
   - Save: %saveTime%
+  - Allow enter : %allowEnter%
+  - Allow leave : %allowLeave%
   %saving%
 camhead.info.room.savetime.datetime: '%saveTime% (%timezone%)'
 camhead.info.room.savetime.never: Never
@@ -128,3 +130,12 @@ camhead.spectate.leave.failed.not_spectating: Not spectating.
 camhead.spectate.leave.failed.no_permission: 'Failed to leave: no permission.'
 
 camhead.teleport.notanentity: 'Not an entity: %name%.'
+
+camhead.config.global.enter.enabled: 'You can now enter in any room.'
+camhead.config.global.leave.enabled: 'You can now leave any room.'
+camhead.config.global.enter.disabled: 'You can no longer enter in any room.'
+camhead.config.global.leave.disabled: 'You can no longer leave any room.'
+camhead.config.room.enter.enabled: 'You can now enter in room %room%.'
+camhead.config.room.leave.enabled: 'You can now leave room %room%.'
+camhead.config.room.enter.disabled: 'You can no longer enter in room %room%.'
+camhead.config.room.leave.disabled: 'You can no longer leave room %room%.'

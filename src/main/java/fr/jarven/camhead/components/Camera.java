@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.task.CameraAnimator;
 import fr.jarven.camhead.utils.YawBlockFace;
@@ -109,8 +111,12 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		location.getChunk().load();
 	}
 
-	public Room getRoom() {
-		return room;
+	public @Nonnull Room getRoom() {
+		Room r = this.room;
+		if (r == null) {
+			throw new IllegalStateException("Screen " + name + " is not in a room");
+		}
+		return r;
 	}
 
 	protected void setRoom(Room room) {
@@ -184,7 +190,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceCameraman() {
-		Location cameramanLocation = location.clone().add(0.5, -1.5, 0.5).add(getCameramanOffset());
+		Location cameramanLocation = location.clone().add(0.5, -0.75, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
 
 		if (!getCameraman(true).isPresent()) {
@@ -200,12 +206,14 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		cameraman.setVisible(false);
 		cameraman.setInvulnerable(true);
 		cameraman.setGravity(false);
+		cameraman.setSmall(true);
+		cameraman.setBasePlate(false);
 		SharedItem.createArmor(cameraman.getEquipment(), CAMERAMAN_ITEMS);
 	}
 
 	public void replaceSeat() {
 		removePlayers();
-		Location seatLocation = location.clone().add(0.5, -2.25, 0.5).add(getSeatOffset());
+		Location seatLocation = location.clone().add(0.5, -1.5, 0.5).add(getSeatOffset());
 
 		if (!getCameraSeat(true).isPresent()) {
 			seat = seatLocation.getWorld().spawn(seatLocation, ArmorStand.class);
@@ -218,8 +226,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 			seat.teleport(seatLocation);
 		}
 		seat.setVisible(false);
-		cameraman.setInvulnerable(true);
+		seat.setInvulnerable(true);
 		seat.setGravity(false);
+		seat.setSmall(true);
+		seat.setBasePlate(false);
 		SharedItem.createArmor(seat.getEquipment(), SEAT_ITEMS);
 	}
 
@@ -482,7 +492,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public boolean canHaveSpectators() {
-		return hasSeat();
+		return hasSeat() && this.room.canEnter();
 	}
 
 	public boolean addPlayer(Player player) {

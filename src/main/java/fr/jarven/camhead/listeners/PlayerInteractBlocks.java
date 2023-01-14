@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -15,6 +16,8 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.annotation.Nonnull;
 
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.camhead.CommandCamHeadInfo;
@@ -66,6 +69,12 @@ public class PlayerInteractBlocks implements Listener {
 		return null;
 	}
 
+	private @Nonnull Player getPlayer(PlayerEvent event) {
+		Player p = event.getPlayer();
+		if (p == null) throw new NullPointerException("Player is null");
+		return p;
+	}
+
 	/**
 	 * Break a block
 	 */
@@ -83,7 +92,7 @@ public class PlayerInteractBlocks implements Listener {
 	 */
 	@EventHandler
 	public void onPlayerInteractBlock(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
+		Player player = getPlayer(event);
 		boolean isMainHand = event.getHand() == EquipmentSlot.HAND;
 		if (CamHead.spectatorManager.isSpectator(player)) {
 			event.setCancelled(true);
@@ -119,7 +128,7 @@ public class PlayerInteractBlocks implements Listener {
 		}
 	}
 
-	private void onPlayerRightClickComponent(Player player, ComponentBase component) {
+	private void onPlayerRightClickComponent(@Nonnull Player player, @Nonnull ComponentBase component) {
 		if (player.isSneaking() && (player.hasPermission("camhead.maker") || player.hasPermission("camhead.admin"))) {
 			infoPluginBlock(player, component);
 		} else {
@@ -148,7 +157,7 @@ public class PlayerInteractBlocks implements Listener {
 
 	@EventHandler
 	private void onPickingArmorStandItem(PlayerArmorStandManipulateEvent event) {
-		Player player = event.getPlayer();
+		Player player = getPlayer(event);
 		if (CamHead.spectatorManager.isSpectator(player)) {
 			event.setCancelled(true);
 		} else {
@@ -161,7 +170,7 @@ public class PlayerInteractBlocks implements Listener {
 
 	@EventHandler
 	private void onPlayerInteractArmorStand(PlayerInteractAtEntityEvent event) {
-		Player player = event.getPlayer();
+		Player player = getPlayer(event);
 		if (CamHead.spectatorManager.isSpectator(player)) {
 			event.setCancelled(true);
 		} else if (event.getRightClicked().getType() == EntityType.ARMOR_STAND) {
@@ -200,7 +209,7 @@ public class PlayerInteractBlocks implements Listener {
 		player.spigot().sendMessage(builder.create());
 	}
 
-	private void usePluginBlock(Player player, ComponentBase component) {
+	private void usePluginBlock(@Nonnull Player player, @Nonnull ComponentBase component) {
 		if (component instanceof Camera) {
 			if (CamHead.spectatorManager.isAllowEnterByCamera()) {
 				CamHead.spectatorManager.enter(player, ((Camera) component));

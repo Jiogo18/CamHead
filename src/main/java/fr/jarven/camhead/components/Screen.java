@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.lib.skullcreator.SkullCreator;
 
@@ -85,8 +87,12 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 		return true;
 	}
 
-	public Room getRoom() {
-		return room;
+	public @Nonnull Room getRoom() {
+		Room r = this.room;
+		if (r == null) {
+			throw new IllegalStateException("Screen " + name + " is not in a room");
+		}
+		return r;
 	}
 
 	protected void setRoom(Room room) {

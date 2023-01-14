@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.components.Screen;
@@ -50,7 +52,7 @@ public class SpectatorManager {
 		return stayInRoom || !isRoomFull(room); // Can change camera in the same room, or the room is not full
 	}
 
-	public EnterResult enter(Player player, Camera camera) {
+	public EnterResult enter(@Nonnull Player player, @Nonnull Camera camera) {
 		if (!canEnter(player, camera)) return new EnterResult(camera, EnterResultType.ROOM_FULL);
 
 		CameraSpectator spectator = getSpectator(player);
@@ -74,18 +76,21 @@ public class SpectatorManager {
 		}
 	}
 
-	public EnterResult enter(Player player, Room room) {
+	public EnterResult enter(@Nonnull Player player, @Nonnull Room room) {
 		if (room.getCameras().isEmpty()) {
-			return new EnterResult(null, EnterResultType.NO_CAMERAS);
+			return new EnterResult(room, null, EnterResultType.NO_CAMERAS);
+		} else if (!room.canEnter()) {
+			return new EnterResult(room, null, EnterResultType.NO_PERMISSION);
 		} else {
 			int index = random.nextInt(room.getCameras().size());
 			Camera camera = room.getCameras().toArray(new Camera[0])[index];
-			if (!camera.canHaveSpectators()) camera = room.getNextCamera(camera).orElse(null);
+			if (camera != null && !camera.canHaveSpectators()) camera = room.getNextCamera(camera);
+			if (camera == null) return new EnterResult(room, null, EnterResultType.NO_CAMERAS);
 			return enter(player, camera);
 		}
 	}
 
-	public EnterResult enter(Player player, Screen screen) {
+	public EnterResult enter(@Nonnull Player player, @Nonnull Screen screen) {
 		return enter(player, screen.getRoom());
 	}
 
@@ -102,7 +107,7 @@ public class SpectatorManager {
 
 	public void onDisable() {
 		for (CameraSpectator spectator : spectators.values()) {
-			spectator.leave();
+			spectator.leave(true);
 		}
 		spectators.clear();
 	}
