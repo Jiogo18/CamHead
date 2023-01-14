@@ -206,7 +206,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		cameraman.setVisible(false);
 		cameraman.setInvulnerable(true);
 		cameraman.setGravity(false);
-		cameraman.setSmall(true);
+		cameraman.setSmall(false);
 		cameraman.setBasePlate(false);
 		SharedItem.createArmor(cameraman.getEquipment(), CAMERAMAN_ITEMS);
 	}
