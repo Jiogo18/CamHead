@@ -16,6 +16,12 @@ Currently, you have to use the command `/camhead add` to add a camera/screen.
 
 To remove a camera/screen you can use the command `/camhead remove` or you can break the block to get the command in chat.
 
+<div style="display: flex; justify-content: space-around;">
+<img src="./images/cameras_and_screen.png" width="25%">
+<img src="./images/cameras_and_screen_FortBoyard.png" width="45%">
+<img src="./images/camera_up_glowing.png" width="25%">
+</div>
+
 ## Commands
 
 All commands work with `/execute ... run ...`.

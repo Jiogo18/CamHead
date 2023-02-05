@@ -25,18 +25,18 @@ adminClickToRemove: true
 # Replace the components when the server starts
 replaceOnReload: false
 # Default limit of players in a room
-defaultPlayerLimit: 4
+defaultPlayerLimit: 10
 
 camera:
   block:
     material: END_ROD
-  
+
   # The cameraman is an armor stand holding the camera
   cameraman:
     inventory:
       helmet: # Rotate the camera
-        material: END_ROD
-        custom_model_data: 0
+        material: PLAYER_HEAD
+        headTextureBase64: ewogICJ0aW1lc3RhbXAiIDogMTY3MzcyMTc4NTg1NywKICAicHJvZmlsZUlkIiA6ICIyOTUzMzJiNjkwYWI0OTUzOTQzMzY0ZGE3ZTk4MjkzMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJzcGVjdGF0b3JfZGVhZCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS84ZjM0NGNlYTRhYWI1Y2E0ZWI2ZjI3MGRmYTY2ZWFlOTg4M2RiNmNjY2M1ZmIyMTA2M2Q3NGY0NWVhNjliNmUzIgogICAgfQogIH0KfQ==
       chestplate:
       leggings:
       boots:
@@ -45,12 +45,12 @@ camera:
     # Cameraman offset depending on the support direction
     # Offset 0,0,0 is the center of the support
     offset:
-      NORTH: 0,0.3,0.45
-      SOUTH: 0,0.3,-0.45
-      EAST: -0.45,0.3,0
-      WEST: 0.45,0.3,0
-      DOWN: 0,0.5,0
-      UP: 0,-0.2,0
+      NORTH: 0,-0.2,0.4
+      SOUTH: 0,-0.2,-0.4
+      EAST: -0.4,-0.2,0
+      WEST: 0.4,-0.2,0
+      DOWN: 0,0.0,0
+      UP: 0,-0.7,0
 
   # The seat is an armor stand were the player sits
   seat:
@@ -63,12 +63,12 @@ camera:
       offHand:
     # Seat offset (for the player)
     offset:
-      NORTH: 0,-0.1,0.5
-      SOUTH: 0,-0.1,-0.5
-      EAST: -0.5,-0.1,0
-      WEST: 0.5,-0.1,0
-      DOWN: 0,0.6,0
-      UP: 0,-0.3,0
+      NORTH: 0,0.9,0.4
+      SOUTH: 0,0.9,-0.4
+      EAST: -0.4,0.9,0
+      WEST: 0.4,0.9,0
+      DOWN: 0,1.2,0
+      UP: 0,-0.8,0
 
   # The gamemode to use when the player is in the camera
   # Survival: The player can break blocks. (not recommanded)
