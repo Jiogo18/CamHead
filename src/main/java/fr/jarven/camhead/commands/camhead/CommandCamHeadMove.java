@@ -14,9 +14,9 @@ public class CommandCamHeadMove extends SubCommandBuider {
 	@Override
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("move")
-			.then(generateCameraSelector(cameraArgument -> executeWithRequiredLocation(cameraArgument, 2, (sender, args, location) -> moveCamera(sender, getCamera(args, 1), location))))
-			.then(generateScreenSelector(screenArgument -> executeWithRequiredLocation(screenArgument, 2, (sender, args, location) -> moveScreen(sender, getScreen(args, 1), location))))
-			.then(generateRoomSelector(roomArgument -> executeWithRequiredLocation(roomArgument, 1, (sender, args, location) -> moveRoom(sender, getRoom(args, 0), location))));
+			.then(generateCameraSelector(cameraArgument -> executeWithRequiredLocation(cameraArgument, (sender, args, location) -> moveCamera(sender, getCamera(args), location))))
+			.then(generateScreenSelector(screenArgument -> executeWithRequiredLocation(screenArgument, (sender, args, location) -> moveScreen(sender, getScreen(args), location))))
+			.then(generateRoomSelector(roomArgument -> executeWithRequiredLocation(roomArgument, (sender, args, location) -> moveRoom(sender, getRoom(args), location))));
 	}
 
 	private int moveCamera(CommandSender sender, Camera camera, Location destination) {

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'fr.jarven'
-version = '1.5.2'
+version = '1.6.0'
 description = 'A plugin to add cameras. Built with CommandAPI for Minecraft 1.16.5.'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.jorel:commandapi-shade:8.7.0'
+    implementation 'dev.jorel:commandapi-bukkit-shade:9.0.3'
     implementation 'com.mojang:brigadier:1.0.17' // Paper 1.16.5 => Brigadier 1.0.17
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.mojang:authlib:1.5.25'

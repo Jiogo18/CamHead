@@ -2,21 +2,21 @@ package fr.jarven.camhead.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
-import dev.jorel.commandapi.ArgumentTree;
 import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.LocationArgument;
 import dev.jorel.commandapi.arguments.LocationType;
-import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.commands.arguments.CameraArgument;
 import fr.jarven.camhead.commands.arguments.RoomArgument;
@@ -30,15 +30,11 @@ public abstract class CommandTools {
 		return new LiteralArgument(commandName);
 	}
 
-	protected static StringArgument stringArgument(String name) {
-		return new StringArgument(name);
-	}
-
-	protected static ArgumentTree cameraArgument(Function<CameraArgument, ArgumentTree> generateAfter) {
+	protected static Argument<Room> cameraArgument(Function<CameraArgument, Argument<Camera>> generateAfter) {
 		return new RoomArgument("room_name").then(generateAfter.apply(new CameraArgument("camera_name")));
 	}
 
-	protected static ArgumentTree screenArgument(Function<ScreenArgument, ArgumentTree> generateAfter) {
+	protected static Argument<Room> screenArgument(Function<ScreenArgument, Argument<Screen>> generateAfter) {
 		return new RoomArgument("room_name").then(generateAfter.apply(new ScreenArgument("screen_name")));
 	}
 
@@ -46,52 +42,52 @@ public abstract class CommandTools {
 		return new RoomArgument("room_name");
 	}
 
-	protected ArgumentTree generateCameraSelector(Function<CameraArgument, ArgumentTree> generateAfter) {
-		return literal("camera").then(cameraArgument(generateAfter));
-	}
-
-	protected ArgumentTree generateBasicCameraSelector(int argIndex, BiFunction<NativeProxyCommandSender, Camera, Integer> callback) {
-		return generateCameraSelector(cameraArgument -> cameraArgument.executesNative((proxy, args) -> { return callback.apply(proxy, getCamera(args, argIndex)); }));
-	}
-
-	protected ArgumentTree generateScreenSelector(Function<ScreenArgument, ArgumentTree> generateAfter) {
-		return literal("screen").then(screenArgument(generateAfter));
-	}
-
-	protected ArgumentTree generateBasicScreenSelector(int argIndex, BiFunction<NativeProxyCommandSender, Screen, Integer> callback) {
-		return generateScreenSelector(screenArgument -> screenArgument.executesNative((proxy, args) -> { return callback.apply(proxy, getScreen(args, argIndex)); }));
-	}
-
-	protected ArgumentTree generateRoomSelector(Function<RoomArgument, ArgumentTree> generateAfter) {
-		return literal("room").then(generateAfter.apply(roomArgument()));
-	}
-
-	protected ArgumentTree generateBasicRoomSelector(int argIndex, BiFunction<NativeProxyCommandSender, Room, Integer> callback) {
-		return generateRoomSelector(roomArgument -> roomArgument.executesNative((proxy, args) -> { return callback.apply(proxy, getRoom(args, argIndex)); }));
-	}
-
-	protected @Nonnull Camera getCamera(Object[] args, int argIndex) {
-		Camera camera = CameraArgument.getCamera(args, argIndex);
+	protected static @Nonnull Camera getCamera(CommandArguments args) {
+		Camera camera = (Camera) args.get("camera_name");
 		if (camera == null) {
-			throw new IllegalArgumentException("Camera not found");
+			throw new IllegalArgumentException("Camera argument is missing");
 		}
 		return camera;
 	}
 
-	protected @Nonnull Screen getScreen(Object[] args, int argIndex) {
-		Screen screen = ScreenArgument.getScreen(args, argIndex);
+	protected static @Nonnull Screen getScreen(CommandArguments args) {
+		Screen screen = (Screen) args.get("screen_name");
 		if (screen == null) {
-			throw new IllegalArgumentException("Screen not found");
+			throw new IllegalArgumentException("Screen argument is missing");
 		}
 		return screen;
 	}
 
-	protected @Nonnull Room getRoom(Object[] args, int argIndex) {
-		Room room = RoomArgument.getRoom(args, argIndex);
+	protected static @Nonnull Room getRoom(CommandArguments args) {
+		Room room = (Room) args.get("room_name");
 		if (room == null) {
-			throw new IllegalArgumentException("Room not found");
+			throw new IllegalArgumentException("Room argument is missing");
 		}
 		return room;
+	}
+
+	protected Argument<String> generateCameraSelector(Function<CameraArgument, Argument<Camera>> generateAfter) {
+		return literal("camera").then(cameraArgument(generateAfter));
+	}
+
+	protected Argument<String> generateBasicCameraSelector(BiFunction<NativeProxyCommandSender, Camera, Integer> callback) {
+		return generateCameraSelector(cameraArgument -> cameraArgument.executesNative((proxy, args) -> (callback.apply(proxy, getCamera(args)))));
+	}
+
+	protected Argument<String> generateScreenSelector(Function<ScreenArgument, Argument<Screen>> generateAfter) {
+		return literal("screen").then(screenArgument(generateAfter));
+	}
+
+	protected Argument<String> generateBasicScreenSelector(BiFunction<NativeProxyCommandSender, Screen, Integer> callback) {
+		return generateScreenSelector(screenArgument -> screenArgument.executesNative((proxy, args) -> (callback.apply(proxy, getScreen(args)))));
+	}
+
+	protected Argument<String> generateRoomSelector(Function<RoomArgument, Argument<Room>> generateAfter) {
+		return literal("room").then(generateAfter.apply(roomArgument()));
+	}
+
+	protected Argument<String> generateBasicRoomSelector(BiFunction<NativeProxyCommandSender, Room, Integer> callback) {
+		return generateRoomSelector(roomArgument -> roomArgument.executesNative((proxy, args) -> (callback.apply(proxy, getRoom(args)))));
 	}
 
 	@FunctionalInterface
@@ -99,19 +95,11 @@ public abstract class CommandTools {
 		R apply(T t, U u, V v);
 	}
 
-	protected ArgumentTree executeWithRequiredLocation(ArgumentTree lastArgument, int argCount, TriFunction<CommandSender, Object[], Location, Integer> function) {
+	protected <T> Argument<T> executeWithRequiredLocation(Argument<T> lastArgument, TriFunction<CommandSender, CommandArguments, Location, Integer> function) {
 		return lastArgument
 			.then(new LocationArgument("location", LocationType.BLOCK_POSITION)
-					.executes((sender, args) -> { return function.apply(sender, args, (Location) args[argCount]); }))
-			.executesNative((proxy, args) -> { return function.apply(proxy.getCaller(), args, proxy.getLocation()); });
-	}
-
-	public static <S> Optional<Location> getLocation(S sender) {
-		if (sender instanceof Entity) {
-			return Optional.of(((Entity) sender).getLocation());
-		} else {
-			return Optional.empty();
-		}
+					.executes((sender, args) -> (function.apply(sender, args, (Location) args.get("location")))))
+			.executesNative((proxy, args) -> (function.apply(proxy.getCaller(), args, proxy.getLocation())));
 	}
 
 	public static String getVectorString(Vector vector) {
@@ -133,6 +121,11 @@ public abstract class CommandTools {
 
 	protected String roundIfAboveTen(double n) {
 		return n >= 10 ? Integer.toString((int) Math.round(n)) : Double.toString(Math.round(n * 10) / 10.0);
+	}
+
+	public static void onLoad(JavaPlugin plugin) {
+		if (!CommandAPI.isLoaded())
+			CommandAPI.onLoad(new CommandAPIBukkitConfig(plugin));
 	}
 
 	public static void onEnable() {

@@ -2,6 +2,7 @@ package fr.jarven.camhead.commands.camhead;
 
 import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
@@ -24,16 +25,16 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 							.then(literal("allow-enter")
 									.then(new BooleanArgument("allow")
 											.executesNative(CommandCamHeadConfig::allowEnterRoom))
-									.executesNative((proxy, args) -> { Room room = (Room) args[0]; return room.canEnter() ? 1 : 0; }))
+									.executesNative((proxy, args) -> { Room room = getRoom(args); return room.canEnter() ? 1 : 0; }))
 							.then(literal("allow-leave")
 									.then(new BooleanArgument("allow")
 											.executesNative(CommandCamHeadConfig::allowLeaveRoom))
-									.executesNative((proxy, args) -> { Room room = (Room) args[0]; return room.canLeave() ? 1 : 0; }))));
+									.executesNative((proxy, args) -> { Room room = getRoom(args); return room.canLeave() ? 1 : 0; }))));
 	}
 
-	public static int allowEnterGlobal(NativeProxyCommandSender proxy, Object[] args) {
+	public static int allowEnterGlobal(NativeProxyCommandSender proxy, CommandArguments args) {
 		// Allow enter for every rooms
-		boolean allow = (boolean) args[0];
+		boolean allow = (boolean) args.getOptional("allow").orElse(true);
 		for (Room room : CamHead.manager.getRooms()) {
 			room.setAllowEnter(allow);
 		}
@@ -47,9 +48,9 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 		return 1;
 	}
 
-	public static int allowLeaveGlobal(NativeProxyCommandSender proxy, Object[] args) {
+	public static int allowLeaveGlobal(NativeProxyCommandSender proxy, CommandArguments args) {
 		// Allow leave for every rooms
-		boolean allow = (boolean) args[0];
+		boolean allow = (boolean) args.getOptional("allow").orElse(true);
 		for (Room room : CamHead.manager.getRooms()) {
 			room.setAllowLeave(allow);
 		}
@@ -63,10 +64,10 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 		return 1;
 	}
 
-	public static int allowEnterRoom(NativeProxyCommandSender proxy, Object[] args) {
+	public static int allowEnterRoom(NativeProxyCommandSender proxy, CommandArguments args) {
 		// Allow enter for the room
-		boolean allow = (boolean) args[1];
-		Room room = (Room) args[0];
+		boolean allow = (boolean) args.getOptional("allow").orElse(true);
+		Room room = getRoom(args);
 		room.setAllowEnter(allow);
 
 		if (allow) {
@@ -78,10 +79,10 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 		return 1;
 	}
 
-	public static int allowLeaveRoom(NativeProxyCommandSender proxy, Object[] args) {
+	public static int allowLeaveRoom(NativeProxyCommandSender proxy, CommandArguments args) {
 		// Allow leave for the room
-		boolean allow = (boolean) args[1];
-		Room room = (Room) args[0];
+		boolean allow = (boolean) args.getOptional("allow").orElse(true);
+		Room room = getRoom(args);
 		room.setAllowLeave(allow);
 
 		if (allow) {

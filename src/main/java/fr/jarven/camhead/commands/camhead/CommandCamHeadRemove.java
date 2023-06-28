@@ -13,9 +13,9 @@ public class CommandCamHeadRemove extends SubCommandBuider {
 	@Override
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("remove")
-			.then(generateBasicCameraSelector(1, (proxy, cam) -> removeCamera(proxy, cam)))
-			.then(generateBasicScreenSelector(1, (proxy, scr) -> removeScreen(proxy, scr)))
-			.then(generateBasicRoomSelector(0, (proxy, room) -> removeRoom(proxy, room)));
+			.then(generateBasicCameraSelector((proxy, cam) -> removeCamera(proxy, cam)))
+			.then(generateBasicScreenSelector((proxy, scr) -> removeScreen(proxy, scr)))
+			.then(generateBasicRoomSelector((proxy, room) -> removeRoom(proxy, room)));
 	}
 
 	private int removeCamera(NativeProxyCommandSender proxy, Camera camera) {

@@ -13,9 +13,9 @@ public class CommandCamHeadTeleportTo extends SubCommandBuider {
 	@Override
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("tpto")
-			.then(generateBasicCameraSelector(1, (proxy, cam) -> tpto(proxy, cam.getLocation())))
-			.then(generateBasicScreenSelector(1, (proxy, scr) -> tpto(proxy, scr.getLocation())))
-			.then(generateBasicRoomSelector(0, (proxy, room) -> tpto(proxy, room.getLocation())));
+			.then(generateBasicCameraSelector((proxy, cam) -> tpto(proxy, cam.getLocation())))
+			.then(generateBasicScreenSelector((proxy, scr) -> tpto(proxy, scr.getLocation())))
+			.then(generateBasicRoomSelector((proxy, room) -> tpto(proxy, room.getLocation())));
 	}
 
 	private int tpto(NativeProxyCommandSender proxy, Location destination) {

@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import java.util.Set;
 
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
@@ -23,8 +24,8 @@ public class CommandCamHeadList extends SubCommandBuider {
 			.then(literal("room").executesNative(this::listRooms));
 	}
 
-	private int listCameras(NativeProxyCommandSender proxy, Object[] args) {
-		Room room = getRoom(args, 0);
+	private int listCameras(NativeProxyCommandSender proxy, CommandArguments args) {
+		Room room = getRoom(args);
 		Set<Camera> cameras = room.getCameras();
 		MessageBuilder builder = Messages.Resources.LIST_CAMERAS_HEADER.params(room).replace("%cameraCount%", String.valueOf(cameras.size()));
 		MessageBuilder lastItem = builder;
@@ -40,8 +41,8 @@ public class CommandCamHeadList extends SubCommandBuider {
 		return cameras.size();
 	}
 
-	private int listScreens(NativeProxyCommandSender proxy, Object[] args) {
-		Room room = getRoom(args, 0);
+	private int listScreens(NativeProxyCommandSender proxy, CommandArguments args) {
+		Room room = getRoom(args);
 		Set<Screen> screens = room.getScreens();
 		MessageBuilder builder = Messages.Resources.LIST_SCREENS_HEADER.params(room).replace("%screenCount%", String.valueOf(screens.size()));
 		MessageBuilder lastItem = builder;
@@ -57,7 +58,7 @@ public class CommandCamHeadList extends SubCommandBuider {
 		return screens.size();
 	}
 
-	private int listRooms(NativeProxyCommandSender proxy, Object[] args) {
+	private int listRooms(NativeProxyCommandSender proxy, CommandArguments args) {
 		Set<Room> rooms = CamHead.manager.getRooms();
 		MessageBuilder builder = Messages.Resources.LIST_ROOMS_HEADER.replace("%roomCount%", String.valueOf(rooms.size()));
 		MessageBuilder lastItem = builder;

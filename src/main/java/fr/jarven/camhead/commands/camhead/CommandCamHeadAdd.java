@@ -21,12 +21,15 @@ public class CommandCamHeadAdd extends SubCommandBuider {
 		return (LiteralArgument) literal("add")
 			.then(literal("camera")
 					.then(roomArgument()
-							.then(executeWithRequiredLocation(new StringArgument("camera_name").replaceSuggestions(cameraSuggestions), 2, (sender, args, location) -> addCamera(sender, getRoom(args, 0), args[1].toString(), location)))))
+							.then(executeWithRequiredLocation(new StringArgument("camera_name").replaceSuggestions(cameraSuggestions),
+								(sender, args, location) -> addCamera(sender, getRoom(args), (String) args.get("camera_name"), location)))))
 			.then(literal("screen")
 					.then(roomArgument()
-							.then(executeWithRequiredLocation(stringArgument("screen_name").replaceSuggestions(screenSuggestions), 2, (sender, args, location) -> addScreen(sender, getRoom(args, 0), args[1].toString(), location)))))
+							.then(executeWithRequiredLocation(new StringArgument("screen_name").replaceSuggestions(screenSuggestions),
+								(sender, args, location) -> addScreen(sender, getRoom(args), (String) args.get("screen_name"), location)))))
 			.then(literal("room")
-					.then(executeWithRequiredLocation(stringArgument("room_name"), 1, (sender, args, location) -> addRoom(sender, args[0].toString(), location))));
+					.then(executeWithRequiredLocation(new StringArgument("room_name"),
+						(sender, args, location) -> addRoom(sender, (String) args.get("room_name"), location))));
 	}
 
 	private int addCamera(CommandSender sender, Room room, String cameraName, Location location) {
@@ -80,14 +83,14 @@ public class CommandCamHeadAdd extends SubCommandBuider {
 		return 1;
 	}
 
-	private ArgumentSuggestions cameraSuggestions = (info, builder) -> {
-		Room room = (Room) info.previousArgs()[0];
+	private ArgumentSuggestions<CommandSender> cameraSuggestions = (info, builder) -> {
+		Room room = (Room) info.previousArgs().get("room_name");
 		if (room != null) builder.suggest(getNextCameraName(room));
 		return builder.buildFuture();
 	};
 
-	private ArgumentSuggestions screenSuggestions = (info, builder) -> {
-		Room room = (Room) info.previousArgs()[0];
+	private ArgumentSuggestions<CommandSender> screenSuggestions = (info, builder) -> {
+		Room room = (Room) info.previousArgs().get("room_name");
 		if (room != null) builder.suggest(getNextScreenName(room));
 		return builder.buildFuture();
 	};

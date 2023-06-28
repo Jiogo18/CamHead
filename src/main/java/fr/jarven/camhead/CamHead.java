@@ -39,6 +39,7 @@ public class CamHead extends JavaPlugin {
 		}
 		ConfigurationSerialization.registerClass(Camera.class);
 		ConfigurationSerialization.registerClass(Screen.class);
+		CommandTools.onLoad(this);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.commands.SubCommandBuider;
 import fr.jarven.camhead.commands.arguments.DirectionArgument;
@@ -22,21 +23,21 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 					.then(new DirectionArgument("support", Camera.SUPPORT_DIRECTIONS)
 							.then(new DirectionArgument("facing", Camera.ANIMATION_DIRECTIONS)
 									.executes(this::rotateCameraParams)))
-					.executesNative((proxy, args) -> { return rotateCameraYaw(proxy, (Camera) args[1]); });
+					.executesNative((proxy, args) -> (rotateCameraYaw(proxy, getCamera(args))));
 			}))
 			.then(generateScreenSelector(screenArgument -> {
 				return screenArgument
 					.then(new DirectionArgument("support", Screen.SUPPORT_DIRECTIONS)
 							.then(new DirectionArgument("facing", Screen.FACING)
 									.executes(this::rotateScreenParams)))
-					.executesNative((proxy, args) -> { return rotateScreenYaw(proxy, (Screen) args[1]); });
+					.executesNative((proxy, args) -> (rotateScreenYaw(proxy, getScreen(args))));
 			}));
 	}
 
-	private int rotateCameraParams(CommandSender sender, Object[] args) {
-		Camera camera = (Camera) args[1];
-		BlockFace support = (BlockFace) args[2];
-		BlockFace facing = (BlockFace) args[3];
+	private int rotateCameraParams(CommandSender sender, CommandArguments args) {
+		Camera camera = getCamera(args);
+		BlockFace support = (BlockFace) args.get("support");
+		BlockFace facing = (BlockFace) args.get("facing");
 		camera.setSupportDirection(support);
 		camera.setAnimationFace(facing);
 		CameraAnimator.addCamera(camera); // update
@@ -67,10 +68,10 @@ public class CommandCamHeadRotate extends SubCommandBuider {
 		return 1;
 	}
 
-	private int rotateScreenParams(CommandSender sender, Object[] args) {
-		Screen screen = (Screen) args[1];
-		BlockFace support = (BlockFace) args[2];
-		BlockFace facing = (BlockFace) args[3];
+	private int rotateScreenParams(CommandSender sender, CommandArguments args) {
+		Screen screen = getScreen(args);
+		BlockFace support = (BlockFace) args.get("support");
+		BlockFace facing = (BlockFace) args.get("facing");
 		screen.setSupportDirection(support);
 		screen.setFacing(facing);
 		Messages.Resources.ROTATE_SCREEN_SUCCESS.params(screen).send(sender);

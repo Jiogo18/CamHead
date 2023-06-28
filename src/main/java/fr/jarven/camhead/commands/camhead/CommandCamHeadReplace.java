@@ -13,9 +13,9 @@ public class CommandCamHeadReplace extends SubCommandBuider {
 	@Override
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("replace")
-			.then(generateBasicCameraSelector(1, (proxy, cam) -> replaceCamera(proxy, cam)))
-			.then(generateBasicScreenSelector(1, (proxy, scr) -> replaceScreen(proxy, scr)))
-			.then(generateBasicRoomSelector(0, (proxy, room) -> replaceRoom(proxy, room)));
+			.then(generateBasicCameraSelector((proxy, cam) -> replaceCamera(proxy, cam)))
+			.then(generateBasicScreenSelector((proxy, scr) -> replaceScreen(proxy, scr)))
+			.then(generateBasicRoomSelector((proxy, room) -> replaceRoom(proxy, room)));
 	}
 
 	private int replaceCamera(CommandSender sender, Camera camera) {

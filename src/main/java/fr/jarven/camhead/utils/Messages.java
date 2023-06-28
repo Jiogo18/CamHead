@@ -360,10 +360,10 @@ public class Messages {
 	}
 
 	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<?> info, Resources message) {
-		return new CustomArgumentException(tr(info.sender(), message));
+		return CustomArgumentException.fromString(tr(info.sender(), message));
 	}
 
 	public static CustomArgumentException createCustomArgumentException(CustomArgumentInfo<?> info, MessageBuilder builder) {
-		return new CustomArgumentException(builder.build(info.sender()));
+		return CustomArgumentException.fromString(builder.build(info.sender()));
 	}
 }

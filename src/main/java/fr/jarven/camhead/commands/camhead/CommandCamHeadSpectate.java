@@ -24,13 +24,13 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 			.then(cameraArgument(cameraArg -> cameraArg.executesNative((proxy, args) -> {
 				Player puppet = getPlayer(proxy);
 				if (puppet == null) return 0;
-				Camera camera = getCamera(args, 1);
+				Camera camera = getCamera(args);
 				return spectateCamera(proxy, puppet, camera);
 			})))
 			.then(roomArgument().executesNative((proxy, args) -> {
 				Player puppet = getPlayer(proxy);
 				if (puppet == null) return 0;
-				Room room = getRoom(args, 0);
+				Room room = getRoom(args);
 				return spectateRoom(proxy, puppet, room);
 			}))
 			.executesNative((proxy, args) -> {

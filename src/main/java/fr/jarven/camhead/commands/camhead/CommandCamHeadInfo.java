@@ -28,10 +28,11 @@ public class CommandCamHeadInfo extends SubCommandBuider {
 	@Override
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("info")
-			.then(generateBasicCameraSelector(1, (proxy, cam) -> infoCamera(proxy, cam)))
-			.then(generateBasicScreenSelector(1, (proxy, scr) -> infoScreen(proxy, scr)))
-			.then(generateBasicRoomSelector(0, (proxy, room) -> infoRoom(proxy, room)))
-			.then(literal("player").then((new PlayerArgument("player1")).executes((sender, args) -> { return infoPlayer(sender, (Player) args[0]); })));
+			.then(generateBasicCameraSelector(this::infoCamera))
+			.then(generateBasicScreenSelector(this::infoScreen))
+			.then(generateBasicRoomSelector(this::infoRoom))
+			.then(literal("player").then((new PlayerArgument("player1"))
+							     .executes((sender, args) -> (infoPlayer(sender, (Player) args.get("player1"))))));
 	}
 
 	public static String getArmorStandInfo(UUID uuid, Optional<ArmorStand> armorStand) {

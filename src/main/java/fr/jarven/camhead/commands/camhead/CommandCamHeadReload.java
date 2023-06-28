@@ -11,7 +11,7 @@ public class CommandCamHeadReload extends SubCommandBuider {
 	public LiteralArgument getArgumentTree() {
 		return (LiteralArgument) literal("reload")
 			.then(roomArgument().executes((sender, args) -> {
-				Room room = getRoom(args, 0);
+				Room room = getRoom(args);
 				CamHead.manager.reload(room);
 				room = CamHead.manager.getRoom(room.getName()).orElseThrow(() -> new IllegalStateException("Room not found"));
 				Messages.Resources.RELOAD_ROOM_SUCCESS.params(room).send(sender);
