@@ -1,9 +1,11 @@
 package fr.jarven.camhead.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
@@ -163,5 +165,29 @@ public class SpectatorInteractCamera implements Listener {
 		CameraSpectator spectator = CamHead.spectatorManager.getSpectator(event.getPlayer());
 		if (spectator == null || spectator.isLeaving()) return;
 		event.setCancelled(true);
+	}
+
+	/**
+	 * Air consumed => Refill
+	 */
+	@EventHandler
+	public void onAirConsumed(EntityAirChangeEvent event) {
+		if (event.isCancelled()) return;
+		if (!(event.getEntity() instanceof Player)) return;
+		CameraSpectator spectator = CamHead.spectatorManager.getSpectator((Player) event.getEntity());
+		if (spectator == null || spectator.isLeaving()) return;
+		int prevAir = spectator.getPlayer().getRemainingAir();
+		int newAir = event.getAmount();
+		if (newAir < prevAir || newAir <= 0) {
+			// In water, set to 0
+			if (newAir > 0) {
+				event.setCancelled(true);
+				spectator.getPlayer().setRemainingAir(0);
+			}
+		} else if (0 < newAir && newAir < 290) {
+			// In air, increase to 300
+			event.setCancelled(true);
+			spectator.getPlayer().setRemainingAir(300);
+		}
 	}
 }

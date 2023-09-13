@@ -91,7 +91,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setCollidable(false);
 		player.setCanPickupItems(false);
 		player.setInvulnerable(true);
-		player.setRemainingAir(0);
 		player.setGravity(false);
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);

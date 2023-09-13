@@ -85,7 +85,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public Location getTpLocation() {
-		return location.clone().add(0.5, -0.5, 0.5);
+		return location.clone().add(0.5, -0.5, 0.5).add(getSeatOffset());
 	}
 
 	@Override
@@ -164,11 +164,11 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public boolean isAtLocation(Location location) {
-		return isExactLocation(location, this.location);
+		return isExactLocation(location, this.location, 0.1f, 0.4f);
 	}
 
 	public boolean isAtTpLocation(Location location) {
-		return isExactLocation(getTpLocation(), location);
+		return isExactLocation(getTpLocation(), location, 0.1f, 0.4f);
 	}
 
 	public void replace() {
