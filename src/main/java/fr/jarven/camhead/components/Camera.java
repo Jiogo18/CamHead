@@ -463,8 +463,9 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public static void loadConfig(YamlConfiguration config) {
-		MATERIAL_BLOCK = Material.valueOf(config.getString("camera.block.material", "BARRIER").toUpperCase());
-		if (MATERIAL_BLOCK == null) {
+		try {
+			MATERIAL_BLOCK = Material.valueOf(config.getString("camera.block.material", "BARRIER").toUpperCase());
+		} catch (IllegalArgumentException e) {
 			CamHead.LOGGER.warning("Invalid material for camera block: " + config.getString("camera.block.material"));
 			MATERIAL_BLOCK = Material.BARRIER;
 		}
