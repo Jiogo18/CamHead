@@ -82,8 +82,7 @@ public class Screen implements ComponentBase, Comparable<Screen>, ConfigurationS
 		if (location.equals(destination)) {
 			return false;
 		}
-		location = destination;
-		makeDirty();
+		setLocation(destination);
 		return true;
 	}
 

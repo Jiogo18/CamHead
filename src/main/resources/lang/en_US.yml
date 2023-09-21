@@ -83,6 +83,9 @@ camhead.list.distance.otherworld: 'in %world%'
 camhead.move.camera.samelocation: Camera is already at this location.
 camhead.move.camera.failed: Failed to move camera.
 camhead.move.camera.success: Camera moved.
+camhead.move.screen.samelocation: Screen is already at this location.
+camhead.move.screen.failed: Failed to move screen.
+camhead.move.screen.success: Screen moved.
 
 camhead.reload.success: Reloaded with %roomCount% rooms.
 camhead.reload.reloading: Reloading...

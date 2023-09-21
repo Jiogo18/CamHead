@@ -83,6 +83,9 @@ camhead.list.distance.otherworld: 'dans %world%'
 camhead.move.camera.samelocation: 'La caméra est déjà à cet endroit.'
 camhead.move.camera.failed: 'Échec du déplacement de la caméra.'
 camhead.move.camera.success: 'Caméra déplacée.'
+camhead.move.screen.samelocation: 'L''écran est déjà à cet endroit.'
+camhead.move.screen.failed: 'Échec du déplacement de l''écran.'
+camhead.move.screen.success: 'Écran déplacé.'
 
 camhead.reload.success: Rechargé avec %roomCount% pièces.
 camhead.reload.reloading: Rechargement...

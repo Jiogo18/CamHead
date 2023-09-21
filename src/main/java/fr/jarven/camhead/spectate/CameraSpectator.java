@@ -82,6 +82,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 	}
 
 	public EnterResult enter() {
+		if (leaving) return new EnterResult(camera, EnterResultType.LEAVING);
 		if (!camera.hasSeat()) return new EnterResult(camera, EnterResultType.NO_SEAT);
 		if (!camera.getRoom().canEnter()) return new EnterResult(camera, EnterResultType.NO_PERMISSION);
 

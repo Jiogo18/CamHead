@@ -14,7 +14,8 @@ public class EnterResult {
 		NO_CAMERAS,
 		NO_PERMISSION,
 		NO_SEAT,
-		ROOM_FULL
+		ROOM_FULL,
+		LEAVING
 	}
 
 	public final Room room;
