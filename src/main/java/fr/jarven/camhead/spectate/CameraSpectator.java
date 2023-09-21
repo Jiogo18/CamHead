@@ -158,6 +158,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		private final boolean wasCanPickupItems;
 		private final boolean wasInvulnerable;
 		private final ItemStack[] inventory;
+		private final int air;
 
 		private PlayerState(Player player) {
 			this.player = player;
@@ -172,6 +173,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.wasCanPickupItems = player.getCanPickupItems();
 			this.wasInvulnerable = player.isInvulnerable();
 			this.inventory = player.getInventory().getContents().clone();
+			this.air = player.getRemainingAir();
 		}
 
 		private void restore() {
@@ -187,6 +189,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.setInvulnerable(wasInvulnerable);
 			player.getInventory().setContents(inventory);
 			player.removeScoreboardTag("CamHeadSpectator");
+			player.setRemainingAir(air);
 		}
 	}
 }

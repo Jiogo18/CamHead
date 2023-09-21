@@ -6,6 +6,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import dev.jorel.commandapi.wrappers.NativeProxyCommandSender;
 import fr.jarven.camhead.CamHead;
 import fr.jarven.camhead.commands.SubCommandBuider;
+import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.utils.Messages;
 
@@ -29,7 +30,12 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 							.then(literal("allow-leave")
 									.then(new BooleanArgument("allow")
 											.executesNative(CommandCamHeadConfig::allowLeaveRoom))
-									.executesNative((proxy, args) -> { Room room = getRoom(args); return room.canLeave() ? 1 : 0; }))));
+									.executesNative((proxy, args) -> { Room room = getRoom(args); return room.canLeave() ? 1 : 0; }))))
+			.then(generateCameraSelector(cameraArgument -> cameraArgument
+				.then(literal("visible")
+						.executesNative((proxy, args) -> { Camera camera = getCamera(args); proxy.sendMessage(camera.isVisible() ? "true" : "false"); return camera.isVisible() ? 1 : 0; })
+						.then(new BooleanArgument("visible")
+								.executesNative((proxy, args) -> (setCameraVisible(proxy, args, (Boolean) args.get("visible"))))))));
 	}
 
 	public static int allowEnterGlobal(NativeProxyCommandSender proxy, CommandArguments args) {
@@ -89,6 +95,22 @@ public class CommandCamHeadConfig extends SubCommandBuider {
 			Messages.Resources.CONFIG_ROOM_LEAVE_ENABLED.params(room).send(proxy);
 		} else {
 			Messages.Resources.CONFIG_ROOM_LEAVE_DISABLED.params(room).send(proxy);
+		}
+
+		return 1;
+	}
+	
+	private int setCameraVisible(NativeProxyCommandSender proxy, CommandArguments args, Boolean b) {
+		Camera camera = getCamera(args);
+		if (b != null) {
+			// Set camera visible
+			camera.setVisible(b);
+		}
+
+		if (camera.isVisible()) {
+			Messages.Resources.CONFIG_CAMERA_VISIBLE_ENABLED.params(camera).send(proxy);
+		} else {
+			Messages.Resources.CONFIG_CAMERA_VISIBLE_DISABLED.params(camera).send(proxy);
 		}
 
 		return 1;

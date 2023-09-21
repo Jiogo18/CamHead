@@ -48,6 +48,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	private ArmorStand cameraman = null;
 	private ArmorStand seat = null;
 	private final Set<Player> players = new HashSet<>();
+	private boolean visible = true;
 
 	protected Camera(Room room, String name, Location location) {
 		RoomManager.assertNameStandard(name);
@@ -60,7 +61,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		CameraAnimator.addCamera(this);
 	}
 
-	private Camera(String name, Location location, BlockFace supportDirection, BlockFace animationDirection, UUID cameraman, UUID seat) {
+	private Camera(String name, Location location, BlockFace supportDirection, BlockFace animationDirection, UUID cameraman, UUID seat, boolean visible) {
 		RoomManager.assertNameStandard(name);
 		this.room = null;
 		this.name = name;
@@ -69,9 +70,10 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.animationDirection = animationDirection;
 		this.cameramanUUID = cameraman;
 		this.seatUUID = seat;
+		this.visible = visible;
 		getCameraman();
 		getCameraSeat();
-		// replace latter when the room is set (for makeDirty)
+		// replace later when the room is set (for makeDirty)
 	}
 
 	@Override
@@ -159,7 +161,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		this.cameramanUUID = null;
 		this.cameraman = null;
 		getCameraSeat(true).ifPresent(ArmorStand::remove);
-		this.cameramanUUID = null;
+		this.seatUUID = null;
 		this.seat = null;
 	}
 
@@ -178,6 +180,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceSupport() {
+		if (!isVisible()) return;
 		Block block = location.getBlock();
 		if (block.getType() != MATERIAL_BLOCK) {
 			block.setType(MATERIAL_BLOCK);
@@ -190,6 +193,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 	}
 
 	public void replaceCameraman() {
+		if (!isVisible()) return;
 		Location cameramanLocation = location.clone().add(0.5, -0.75, 0.5).add(getCameramanOffset());
 		cameramanLocation.setYaw(getSupportYaw());
 
@@ -242,6 +246,7 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		ser.put("animationDirection", animationDirection.toString());
 		ser.put("cameramanUUID", cameramanUUID.toString());
 		ser.put("seatUUID", seatUUID.toString());
+		ser.put("visible", visible);
 		return ser;
 	}
 
@@ -268,7 +273,8 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 			CamHead.LOGGER.warning("Failed to load seat's UUID for camera " + name + " at " + location);
 			e.printStackTrace();
 		}
-		return new Camera(name, location, supportDirection, animationDirection, cameramanUUID, seatUUID);
+		boolean visible = (boolean) args.getOrDefault("visible", true);
+		return new Camera(name, location, supportDirection, animationDirection, cameramanUUID, seatUUID, visible);
 	}
 
 	protected void updateWith(Camera camera) {
@@ -525,5 +531,24 @@ public class Camera implements ComponentBase, Comparable<Camera>, ConfigurationS
 		for (Player player : playersInside) {
 			CamHead.spectatorManager.leave(player);
 		}
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		if (this.visible != visible) {
+			if (visible) {
+				replace();
+			} else {
+				CameraAnimator.removeCamera(this);
+				location.getBlock().setType(Material.AIR);
+				getCameraman(true).ifPresent(ArmorStand::remove);
+				this.cameramanUUID = null;
+				this.cameraman = null;
+			}
+		}
+		this.visible = visible;
 	}
 }

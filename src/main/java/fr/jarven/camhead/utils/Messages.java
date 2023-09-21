@@ -25,7 +25,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2023-01-14";
+	private static final String LANGUAGE_VERSION = "2023-09-21";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -131,6 +131,8 @@ public class Messages {
 		CONFIG_ROOM_LEAVE_ENABLED("camhead.config.room.leave.enabled"),
 		CONFIG_ROOM_ENTER_DISABLED("camhead.config.room.enter.disabled"),
 		CONFIG_ROOM_LEAVE_DISABLED("camhead.config.room.leave.disabled"),
+		CONFIG_CAMERA_VISIBLE_ENABLED("camhead.config.camera.visible.enabled"),
+		CONFIG_CAMERA_VISIBLE_DISABLED("camhead.config.camera.visible.disabled"),
 		;
 
 		private String key;

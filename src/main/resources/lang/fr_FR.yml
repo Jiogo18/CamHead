@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2023-01-14.
+# Modifié par Jarven le 2023-09-21.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2023-01-14"
+version.revision: "2023-09-21"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -139,3 +139,5 @@ camhead.config.room.enter.enabled: 'Vous pouvez maintenant entrer dans la pièce
 camhead.config.room.leave.enabled: 'Vous pouvez maintenant quitter la pièce %room%.'
 camhead.config.room.enter.disabled: 'Vous ne pouvez plus entrer dans la pièce %room%.'
 camhead.config.room.leave.disabled: 'Vous ne pouvez plus quitter la pièce %room%.'
+camhead.config.camera.visible.enabled: 'La caméra %camera% est maintenant visible.'
+camhead.config.camera.visible.disabled: 'La caméra %camera% n''est plus visible.'

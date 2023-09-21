@@ -1,8 +1,8 @@
-# Edited by Jarven on 2023-01-14.
+# Edited by Jarven on 2023-09-21.
 # You can disable the auto update if you edit this file.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2023-01-14"
+version.revision: "2023-09-21"
 
 camhead.room.unknown: Room %room% unknown.
 camhead.room.alreadyexists: Room %room% already exists.
@@ -139,3 +139,5 @@ camhead.config.room.enter.enabled: 'You can now enter in room %room%.'
 camhead.config.room.leave.enabled: 'You can now leave room %room%.'
 camhead.config.room.enter.disabled: 'You can no longer enter in room %room%.'
 camhead.config.room.leave.disabled: 'You can no longer leave room %room%.'
+camhead.config.camera.visible.enabled: 'Camera %camera% is now visible.'
+camhead.config.camera.visible.disabled: 'Camera %camera% is no longer visible.'
