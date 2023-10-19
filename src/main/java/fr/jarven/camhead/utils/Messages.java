@@ -25,7 +25,7 @@ public class Messages {
 	private static String defaultLanguage = "en_US";
 	private static YamlConfiguration defaultTranslations = null;
 	private static Map<String, YamlConfiguration> languages = new HashMap<>();
-	private static final String LANGUAGE_VERSION = "2023-09-21";
+	private static final String LANGUAGE_VERSION = "2023-10-19";
 
 	public enum Resources {
 		ROOM_UNKNOWN("camhead.room.unknown"),
@@ -115,6 +115,7 @@ public class Messages {
 		SPECTATE_ENTER_FAILED_NO_PERMISSION("camhead.spectate.enter.failed.no_permission"),
 		SPECTATE_ENTER_FAILED_NO_SEAT("camhead.spectate.enter.failed.no_seat"),
 		SPECTATE_ENTER_FAILED_ROOM_FULL("camhead.spectate.enter.failed.room_full"),
+		SPECTATE_ENTER_FAILED_LEAVING("camhead.spectate.enter.failed.leaving"),
 		SPECTATE_LEAVE_SUCCESS("camhead.spectate.leave.success"),
 		SPECTATE_LEAVE_FAILED_ALREADY_LEAVING("camhead.spectate.leave.failed.already_leaving"),
 		SPECTATE_LEAVE_FAILED_UNKNOWN("camhead.spectate.leave.failed.unknown"),

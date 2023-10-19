@@ -1,8 +1,8 @@
-# Modifié par Jarven le 2023-09-21.
+# Modifié par Jarven le 2023-10-19.
 # Vous pouvez désactiver l'actualisation automatique si vous modifiez ce fichier manuellement.
 version.autoupdate: true
 version.warnings: true
-version.revision: "2023-09-21"
+version.revision: "2023-10-19"
 
 camhead.room.unknown: Pièce %room% inconnue.
 camhead.room.alreadyexists: La pièce %room% existe déjà.
@@ -126,6 +126,7 @@ camhead.spectate.enter.failed.no_cameras: "Échec de la vue caméra : pas de cam
 camhead.spectate.enter.failed.no_permission: "Échec de la vue caméra : vous n'avez pas la permission."
 camhead.spectate.enter.failed.no_seat: "Échec de la vue caméra : pas de siège."
 camhead.spectate.enter.failed.room_full: "Échec de la vue caméra : la pièce est pleine."
+camhead.spectate.enter.failed.leaving: "Échec de la vue caméra : opération en cours, réessayez."
 camhead.spectate.leave.success: Sortie de la vue caméra.
 camhead.spectate.leave.failed.already_leaving: Déjà en train de quitter la caméra.
 camhead.spectate.leave.failed.unknown: Échec de la sortie de la vue caméra.

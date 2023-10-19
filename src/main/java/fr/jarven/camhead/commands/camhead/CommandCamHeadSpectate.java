@@ -70,6 +70,9 @@ public class CommandCamHeadSpectate extends SubCommandBuider {
 			case ROOM_FULL:
 				builder = Messages.Resources.SPECTATE_ENTER_FAILED_ROOM_FULL.params(result.getRoom());
 				break;
+			case LEAVING:
+				builder = Messages.Resources.SPECTATE_ENTER_FAILED_LEAVING.params(result.getCamera());
+				break;
 		}
 
 		if (builder == null) {
