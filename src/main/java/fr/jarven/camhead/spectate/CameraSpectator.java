@@ -13,6 +13,7 @@ import fr.jarven.camhead.components.Camera;
 import fr.jarven.camhead.components.Room;
 import fr.jarven.camhead.spectate.EnterResult.EnterResultType;
 import fr.jarven.camhead.spectate.LeaveResult.LeaveResultType;
+import fr.jarven.camhead.utils.FakePlayerLib;
 
 public class CameraSpectator implements Comparable<CameraSpectator> {
 	public static GameMode GAMEMODE = GameMode.SPECTATOR;
@@ -160,6 +161,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		private final boolean wasInvulnerable;
 		private final ItemStack[] inventory;
 		private final int air;
+		private FakePlayerLib fakePlayer;
 
 		private PlayerState(Player player) {
 			this.player = player;
@@ -175,6 +177,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.wasInvulnerable = player.isInvulnerable();
 			this.inventory = player.getInventory().getContents().clone();
 			this.air = player.getRemainingAir();
+			this.fakePlayer = new FakePlayerLib(this.location, player.getUniqueId(), player.getName());
 		}
 
 		private void restore() {
@@ -191,6 +194,7 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.getInventory().setContents(inventory);
 			player.removeScoreboardTag("CamHeadSpectator");
 			player.setRemainingAir(air);
+			fakePlayer.destroy();
 		}
 	}
 }

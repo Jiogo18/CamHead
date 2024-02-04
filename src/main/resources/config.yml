@@ -26,6 +26,8 @@ adminClickToRemove: true
 replaceOnReload: false
 # Default limit of players in a room
 defaultPlayerLimit: 10
+# Spawn a fake player when the player is in the camera
+spawnFakePlayer: true
 
 camera:
   block:

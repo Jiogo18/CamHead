@@ -19,6 +19,7 @@ import fr.jarven.camhead.listeners.SpectatorInteractCamera;
 import fr.jarven.camhead.spectate.SpectatorManager;
 import fr.jarven.camhead.task.CameraAnimator;
 import fr.jarven.camhead.task.SaveTask;
+import fr.jarven.camhead.utils.FakePlayerLib;
 import fr.jarven.camhead.utils.Messages;
 
 /*
@@ -73,6 +74,7 @@ public class CamHead extends JavaPlugin {
 		spectatorManager.loadConfig(config);
 		CameraAnimator.loadConfig(config);
 		Messages.loadConfig(config);
+		FakePlayerLib.load();
 	}
 
 	@Override
