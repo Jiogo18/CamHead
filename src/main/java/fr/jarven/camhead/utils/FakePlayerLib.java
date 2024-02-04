@@ -32,7 +32,7 @@ public class FakePlayerLib {
 			return;
 		}
 		try {
-			fakePlayerClass.getMethod("setInvisibleToAll").invoke(fakePlayer);
+			fakePlayerClass.getMethod("remove").invoke(fakePlayer);
 		} catch (Exception e) {
 			onMethodError();
 			e.printStackTrace();
