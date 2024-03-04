@@ -93,7 +93,8 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		player.setCollidable(false);
 		player.setCanPickupItems(false);
 		player.setInvulnerable(true);
-		player.setGravity(false);
+		player.setAllowFlight(true);
+		player.setFlying(true);
 		if (GAMEMODE == GameMode.SPECTATOR) {
 			player.setSpectatorTarget(null);
 		}
@@ -155,7 +156,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 		private final boolean wasFlying;
 		private final float flySpeed;
 		private final boolean wasInvisible;
-		private final boolean hadGravity;
 		private final boolean wasCollidable;
 		private final boolean wasCanPickupItems;
 		private final boolean wasInvulnerable;
@@ -171,7 +171,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			this.wasFlying = player.isFlying();
 			this.flySpeed = player.getFlySpeed();
 			this.wasInvisible = this.gameMode != GameMode.SPECTATOR && player.isInvisible();
-			this.hadGravity = player.hasGravity();
 			this.wasCollidable = player.isCollidable();
 			this.wasCanPickupItems = player.getCanPickupItems();
 			this.wasInvulnerable = player.isInvulnerable();
@@ -187,7 +186,6 @@ public class CameraSpectator implements Comparable<CameraSpectator> {
 			player.setFlying(wasFlying);
 			player.setFlySpeed(flySpeed);
 			player.setInvisible(wasInvisible);
-			player.setGravity(hadGravity);
 			player.setCollidable(wasCollidable);
 			player.setCanPickupItems(wasCanPickupItems);
 			player.setInvulnerable(wasInvulnerable);
